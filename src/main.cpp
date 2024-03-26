@@ -27,6 +27,30 @@ Udp_Receiver receiver = Udp_Receiver(ssid, password);
 
 void timer1Task() {
   gyro_sens.update();
+  
+  // 推定速度
+  xyz_t vel {-1 * gyro_sens.vel().z, -1 * gyro_sens.vel().y, -1 * gyro_sens.gyro().x};
+  // 目標速度
+  xyz_t target_vel{0, 0, 0};
+  const float lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
+  if (millis() - receiver.updated_time() < lost_time) {
+      target_vel = receiver.vel();
+  }
+
+  robo.update(vel);
+  xyz_t out_vel = robo.execute(target_vel);
+
+  constexpr float MAX_SPEED = 400.0; // 最大速度(mm/s) 
+
+  // サーボへの出力に変換
+  servo1.set_speed(( 0.866 * out_vel.x +0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
+  servo2.set_speed(( 0.000 * out_vel.x -1.000* out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
+  servo3.set_speed((-0.866 * out_vel.x +0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
+
+  
+
+  Serial.printf("%f, %f, %f", receiver.vel().x, receiver.vel().y, receiver.vel().z);
+  Serial.println(receiver.kick_flag());
 }
 
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
@@ -55,25 +79,13 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  // 推定速度
-  xyz_t vel {-1 * gyro_sens.vel().z, -1 * gyro_sens.vel().y, -1 * gyro_sens.gyro().x};
-  // 目標速度
-  xyz_t target_vel{0, 0, 0};
-
-  robo.update(vel);
-  xyz_t out_vel = robo.execute(target_vel);
-
-  constexpr float MAX_SPEED = 400.0; // 最大速度(mm/s) 
-
-  // サーボへの出力に変換
-  servo1.set_speed(( 0.866 * out_vel.x +0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
-  servo2.set_speed(( 0.000 * out_vel.x -1.000* out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
-  servo3.set_speed((-0.866 * out_vel.x +0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
-
   // キック
-  if (false) {
+  if (receiver.kick_flag()) {
     servo0.set_angle(-60);
-    delay(100);
+    delay(50);
     servo0.set_angle(-90);
+    delay(100);
   }
+  delay(10);
+  
 }

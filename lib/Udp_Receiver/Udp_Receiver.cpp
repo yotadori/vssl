@@ -2,7 +2,7 @@
 
 #include "Udp_Receiver.h"
 
-Udp_Receiver::Udp_Receiver(char* ssid, char* password) : ssid_{ssid}, password_{password}, udp_{} {}
+Udp_Receiver::Udp_Receiver(char* ssid, char* password) : ssid_{ssid}, password_{password}, udp_{}, last_updated_time_(0) {}
 
 void Udp_Receiver::setup() {
     Serial.begin(115200);
@@ -14,10 +14,15 @@ void Udp_Receiver::setup() {
             delay(1000);
         }
     }
+
+    // address 224.4.34.4
+    // port 10004
     if(udp_.listenMulticast(IPAddress(224, 4, 23, 4), 10004)) {
         Serial.print("UDP Listening on IP: ");
         Serial.println(WiFi.localIP());
-        udp_.onPacket([](AsyncUDPPacket packet) {
+        udp_.onPacket([this](AsyncUDPPacket packet) {
+            // データを受信したときの処理 
+            /*
             Serial.print("UDP Packet Type: ");
             Serial.print(packet.isBroadcast()?"Broadcast":packet.isMulticast()?"Multicast":"Unicast");
             Serial.print(", From: ");
@@ -33,10 +38,67 @@ void Udp_Receiver::setup() {
             Serial.print(", Data: ");
             Serial.write(packet.data(), packet.length());
             Serial.println();
+            */
             //reply to the client
             packet.printf("Got %u bytes of data", packet.length());
+
+            if (packet.length() < 11) return;
+            uint8_t *data = packet.data();
+            const unsigned int id = 0;
+            if ((data[0] & 0b1111) == id + 1) {
+                // 自分のidだったら値を更新
+                update(data); 
+            }
         });
         //Send multicast
         udp_.print("Hello!");
     }
+}
+
+xyz_t Udp_Receiver::vel() {
+    return vel_;
+} 
+
+bool Udp_Receiver::kick_flag() {
+    return kick_flag_;
+}
+
+void Udp_Receiver::update(uint8_t* data) {
+    // 時刻を取得
+    this->last_updated_time_ = millis();
+
+    const auto velocity = data[1] << 8 | data[2];
+    const auto direction = data[3] << 8 | data[4];
+
+    // 速度指令にかける倍率
+    static constexpr float linear_coef = 0.2;
+    static constexpr float angular_coef = 0.4;
+
+    // mm/s, mm/s, rad/s
+    vel_.y =
+        -1 * linear_coef * velocity * std::cos(2.0 * M_PI * direction / 65535);
+    vel_.x =
+        linear_coef * velocity * std::sin(2.0 * M_PI * direction / 65535);
+    vel_.z = angular_coef * ((data[0] & 0x80) == 0 ? 1 : -1) *
+                                    (data[5] << 8 | data[6]) / 1000.0;
+
+    const auto dribble = data[7] & 0x0f;
+
+    kick_flag_ = false;
+    if((data[0] >> 5) & 0x01) {
+        kick_flag_ = true;
+        if((0x01 & (data[0] >> 4)) == 1) {
+            // line
+            const auto line = true;
+        }
+        else {
+            // chip
+            const auto chip = true;
+        }
+    }
+
+}
+
+float Udp_Receiver::updated_time() {
+    return last_updated_time_;
 }

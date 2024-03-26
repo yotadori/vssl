@@ -39,11 +39,11 @@ xyz_t Robo::execute(xyz_t target_vel) {
   diff.y = (error_.y - prev.y) / (interval * 0.001);
   diff.z = (error_.z - prev.z) / (interval * 0.001);
 
-  float c = 0.7;
+  float c = 1.0;
   // PIDパラメータ
-  float p = 0.1;
+  float p = 0;
   float i = 0;
-  float d = 0.005;
+  float d = 0;
 
   // PIDの式
   out_vel_.x = clamp(c * target_vel.x + p * error_.x + i * integral_.x + d * diff.x, 400); 
