@@ -7,7 +7,8 @@
 Servo::Servo(int channel, int pin) : channel_(channel) {
     // pwmのセットアップ
     // 50Hz, 8bit
-    ledcSetup(channel_, 50, 16);
+    pinMode(pin, OUTPUT);
+    ledcSetup(channel_, 50, 12);
     ledcAttachPin(pin, channel_);
 }
 
@@ -20,7 +21,7 @@ void Servo::set_angle(int angle) {
     }
 
     // -90~90を2.5%~12%に変換
-    int duty = (angle * 9.5 / 180 + 7.25) * 65535 / 100;
+    int duty = (angle * 9.5 / 180 + 7.25) * 4095 / 100;
 
     ledcWrite(channel_, duty);
 }
