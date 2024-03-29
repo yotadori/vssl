@@ -1,4 +1,6 @@
 // Udp_Receiver.h
+#ifndef UDP_RECEIVER_H
+#define UDP_RECEIVER_H 
 
 #include "Arduino.h"
 
@@ -35,3 +37,5 @@ class Udp_Receiver {
         */
         void update(uint8_t* data);
 };
+
+#endif // UDP_RECEIVER_H
