@@ -27,6 +27,8 @@ Udp_Receiver receiver = Udp_Receiver(ssid, password);
 Speaker speaker = Speaker(4, SPEAKER_PIN);
 
 void timer1Task() {
+  speaker.update();
+
   // 目標速度
   xyz_t target_vel{0, 0, 0};
   const float lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
@@ -71,6 +73,9 @@ void setup() {
   speaker.beep(5);
   delay(200);
   speaker.stop();
+
+  Speaker::tone_type doremi[]{{5, 20}, {4, 20}, {5, 20}, {0, 20}, {5, 20}, {4, 20}, {5, 20}, {0, 20}, {Speaker::STOP, 20}};
+  speaker.set_melody(doremi);
 
   // 加速度センサ用割り込み
   // interval 10ms
