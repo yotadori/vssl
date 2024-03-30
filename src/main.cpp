@@ -17,16 +17,17 @@
 #include "Udp_Receiver.h"
 #endif
 
-const int SERVO_PIN = D7;
-const int ROT_PIN_1 = D2;
-const int ROT_PIN_2 = D3;
-const int ROT_PIN_3 = D4;
-const int SPEAKER_PIN = D6;
+constexpr int SERVO_PIN = D7;
+constexpr int ROT_PIN_1 = D2;
+constexpr int ROT_PIN_2 = D3;
+constexpr int ROT_PIN_3 = D4;
+constexpr int SPEAKER_PIN = D6;
+constexpr int ADC_PIN = D0;
 
 Servo servo0 = Servo(0, SERVO_PIN);
-Rot_Servo servo1 = Rot_Servo(1, ROT_PIN_1, 0);
+Rot_Servo servo1 = Rot_Servo(1, ROT_PIN_1, 10);
 Rot_Servo servo2 = Rot_Servo(2, ROT_PIN_2, 0);
-Rot_Servo servo3 = Rot_Servo(3, ROT_PIN_3, 0);
+Rot_Servo servo3 = Rot_Servo(3, ROT_PIN_3, 10);
 
 Robo robo = Robo();
 
@@ -39,9 +40,25 @@ Udp_Receiver receiver = Udp_Receiver(ssid, password);
 
 Speaker speaker = Speaker(4, SPEAKER_PIN);
 
+// ADCで読んだバッテリー電圧
+float batt_v = 4.8;
+
 void timer1Task() {
 
   speaker.update();
+
+  // DACでバッテリー電圧を読む
+  long adc_val = analogRead(ADC_PIN);
+  Serial.printf(">dac_value:%f\n", (float)adc_val);
+  // LPFにかける
+  constexpr float LPF_C = 0.999;
+  batt_v = LPF_C * batt_v + (1 - LPF_C) * (adc_val * 0.0014);
+  Serial.printf(">batt_vol:%f\n", (float)batt_v);
+  // バッテリー電圧が低ければ警告音
+  if (batt_v < 4.7 && !speaker.playing()) {
+    Speaker::tone_type low_batt_melody[]{{7, 30}, {6, 30}, {0, 30}, {Speaker::STOP, 0}};
+    speaker.set_melody(low_batt_melody);
+  }
 
   // 目標速度
   xyz_t target_vel{0, 0, 0};
@@ -95,6 +112,9 @@ void setup() {
 
   Serial.begin(115200);
 
+  // ADCでバッテリー電圧を読む
+  pinMode(ADC_PIN, INPUT);
+
 #ifndef USE_DABBLE
   receiver.setup();
 #endif
@@ -130,6 +150,8 @@ void loop() {
 #ifdef USE_DABBLE
   if (GamePad.isTrianglePressed()) {
 #endif
+    static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
+    speaker.set_melody(kick_sound);
     servo0.set_angle(-60);
     delay(50);
     servo0.set_angle(-90);

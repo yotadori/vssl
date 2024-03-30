@@ -12,6 +12,7 @@ channel_(channel), melody_{0}, counter_(0)
 
 void Speaker::update() {
     if (melody_[melody_step_].tone == Speaker::STOP) {
+        playing_ = false;
         stop();
     } else if (melody_[melody_step_].tone == Speaker::REPEAT) {
         counter_ = 0;
@@ -37,6 +38,7 @@ void Speaker::stop() {
 }
 
 void Speaker::set_melody(tone_type melody[]) {
+    playing_ = true;
     counter_ = 0;
     melody_step_ = 0;
 
@@ -48,4 +50,8 @@ void Speaker::set_melody(tone_type melody[]) {
     }
     
     beep(melody_[melody_step_].tone);
+}
+
+bool Speaker::playing() {
+    return playing_;
 }

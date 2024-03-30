@@ -48,11 +48,17 @@ class Speaker {
         */
         void set_melody(tone_type melody[]);
 
+        /**
+         * @return 再生中か
+        */
+        bool playing();
+
     private:
         int channel_;
         tone_type melody_[99];
         int counter_;
         int melody_step_;
+        bool playing_;
 };
 
 #endif // SPEAKER_H
