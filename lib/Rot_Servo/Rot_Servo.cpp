@@ -20,7 +20,11 @@ void Rot_Servo::set_speed(float speed) {
     } else if (speed < -1) {
         speed = -1;
     }
-    // -1.0~1.0を2.5%~12%に変換
-    int duty = (speed * 9.5 / 2.0 + 7.25) * 4095 / 100.0 + offset_;
+
+    int duty = 0; // speed = 0 のときは確実に止める
+    if (speed != 0) {
+        // -1.0~1.0を2.5%~12%に変換
+        duty = (speed * 9.5 / 2.0 + 7.25) * 4095 / 100.0 + offset_;
+    }
     ledcWrite(channel_, duty);
 }

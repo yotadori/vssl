@@ -25,3 +25,7 @@ void Servo::set_angle(int angle) {
 
     ledcWrite(channel_, duty);
 }
+
+void Servo::stop() {
+    ledcWrite(channel_, 0);
+}

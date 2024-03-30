@@ -106,6 +106,8 @@ void setup() {
   // put your setup code here, to run once:
 
   servo0.set_angle(-90);
+  delay(500);
+  servo0.stop();
   servo1.set_speed(0);
   servo2.set_speed(0);
   servo3.set_speed(0);
@@ -135,9 +137,9 @@ void setup() {
   // Dabble ゲームパッド
   Dabble.begin("VSSL");
 
-  // 加速度センサ用割り込み
-  // interval 10ms
-  timer1.begin(timer1Task, 10);
+  // 割り込み 60Hz
+  // interval 17ms
+  timer1.begin(timer1Task, 17);
 }
 
 void loop() {
@@ -156,6 +158,8 @@ void loop() {
     delay(50);
     servo0.set_angle(-90);
     delay(100);
+  } else {
+    servo0.stop();
   }
   delay(10);
 

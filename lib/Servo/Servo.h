@@ -18,6 +18,11 @@ class Servo {
         */
         void set_angle(int angle);
 
+        /**
+         * @brief 力を抜いて止める
+        */
+        void stop();
+
     private:
         // pwmのチャンネル
         int channel_;
