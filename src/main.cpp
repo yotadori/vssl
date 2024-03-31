@@ -55,7 +55,7 @@ void timer1Task() {
   batt_v = LPF_C * batt_v + (1 - LPF_C) * (adc_val * 0.0014);
   Serial.printf(">batt_vol:%f\n", (float)batt_v);
   // バッテリー電圧が低ければ警告音
-  if (batt_v < 4.6 && !speaker.playing()) {
+  if (batt_v < 4.45 && !speaker.playing()) {
     Speaker::tone_type low_batt_melody[]{{7, 30}, {6, 30}, {0, 30}, {Speaker::STOP, 0}};
     speaker.set_melody(low_batt_melody);
   }
