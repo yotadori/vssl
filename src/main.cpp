@@ -76,8 +76,8 @@ void timer1Task() {
 #ifdef USE_DABBLE
   // Dabble ゲームパッド
   Dabble.processInput();
-  target_vel.x = GamePad.getYaxisData() * 50.0;
-  target_vel.y = GamePad.getXaxisData() * -50.0;
+  target_vel.x = GamePad.getYaxisData() * 30.0;
+  target_vel.y = GamePad.getXaxisData() * -30.0;
   if (GamePad.isCirclePressed())
   {
     target_vel.z = -1;
