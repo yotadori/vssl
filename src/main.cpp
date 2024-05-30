@@ -23,6 +23,9 @@ constexpr int ROT_PIN_2 = D3;
 constexpr int ROT_PIN_3 = D4;
 constexpr int SPEAKER_PIN = D6;
 constexpr int ADC_PIN = D0;
+constexpr int BALL_SENSE_PIN = D1;
+
+constexpr float BALL_SENSE_THRESHOLD = 14;
 
 Servo servo0 = Servo(0, SERVO_PIN);
 Rot_Servo servo1 = Rot_Servo(1, ROT_PIN_1, 10);
@@ -42,10 +45,12 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 
 // ADCで読んだバッテリー電圧
 float batt_v = 4.8;
+// ボールセンサの値
+float ball_sense = 0;
 
 void timer1Task() {
 
-  speaker.update();
+  speaker.update(); 
 
   // DACでバッテリー電圧を読む
   long adc_val = analogRead(ADC_PIN);
@@ -59,6 +64,11 @@ void timer1Task() {
     Speaker::tone_type low_batt_melody[]{{7, 30}, {6, 30}, {0, 30}, {Speaker::STOP, 0}};
     speaker.set_melody(low_batt_melody);
   }
+
+  // DACでボールセンサを読む
+  constexpr float BALL_LPF_C = 0.9;
+  ball_sense = BALL_LPF_C * ball_sense + (1 - BALL_LPF_C) * analogRead(BALL_SENSE_PIN);
+  Serial.printf(">ball_sense:%f\n", (float)ball_sense);
 
   // 目標速度
   xyz_t target_vel{0, 0, 0};
@@ -116,6 +126,8 @@ void setup() {
 
   // ADCでバッテリー電圧を読む
   pinMode(ADC_PIN, INPUT);
+  // ADCでボールセンサの値を読む
+  pinMode(BALL_SENSE_PIN, INPUT);
 
 #ifndef USE_DABBLE
   receiver.setup();
@@ -152,12 +164,17 @@ void loop() {
 #ifdef USE_DABBLE
   if (GamePad.isTrianglePressed()) {
 #endif
-    static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
-    speaker.set_melody(kick_sound);
-    servo0.set_angle(-60);
-    delay(50);
-    servo0.set_angle(-90);
-    delay(100);
+    if (ball_sense > BALL_SENSE_THRESHOLD)
+    {
+      // ボールセンサが反応しているとき
+      static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
+      speaker.set_melody(kick_sound);
+      servo0.set_angle(-20);
+      delay(100);
+      servo0.set_angle(-90);
+      delay(100);
+      ball_sense = 0;
+    }
   } else {
     servo0.stop();
   }
