@@ -28,9 +28,9 @@ constexpr int BALL_SENSE_PIN = D1;
 constexpr float BALL_SENSE_THRESHOLD = 14;
 
 Servo servo0 = Servo(0, SERVO_PIN);
-Rot_Servo servo1 = Rot_Servo(1, ROT_PIN_1, 10);
+Rot_Servo servo1 = Rot_Servo(1, ROT_PIN_1, 0.2);
 Rot_Servo servo2 = Rot_Servo(2, ROT_PIN_2, 0);
-Rot_Servo servo3 = Rot_Servo(3, ROT_PIN_3, 10);
+Rot_Servo servo3 = Rot_Servo(3, ROT_PIN_3, 0.2);
 
 Robo robo = Robo();
 
@@ -66,7 +66,7 @@ void timer1Task() {
   }
 
   // DACでボールセンサを読む
-  constexpr float BALL_LPF_C = 0.9;
+  constexpr float BALL_LPF_C = 0.8;
   ball_sense = BALL_LPF_C * ball_sense + (1 - BALL_LPF_C) * analogRead(BALL_SENSE_PIN);
   Serial.printf(">ball_sense:%f\n", (float)ball_sense);
 
@@ -86,15 +86,15 @@ void timer1Task() {
 #ifdef USE_DABBLE
   // Dabble ゲームパッド
   Dabble.processInput();
-  target_vel.x = GamePad.getYaxisData() * 30.0;
-  target_vel.y = GamePad.getXaxisData() * -30.0;
+  target_vel.x = GamePad.getYaxisData() * 60.0;
+  target_vel.y = GamePad.getXaxisData() * -60.0;
   if (GamePad.isCirclePressed())
   {
-    target_vel.z = -1;
+    target_vel.z = -2;
   }
   if (GamePad.isSquarePressed())
   {
-    target_vel.z = 1;
+    target_vel.z = 2;
   }
 #endif
 
@@ -106,7 +106,22 @@ void timer1Task() {
   servo1.set_speed(( 0.866 * out_vel.x +0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
   servo2.set_speed(( 0.000 * out_vel.x -1.000* out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
   servo3.set_speed((-0.866 * out_vel.x +0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / MAX_SPEED);
-
+  
+  /*
+  // 連続回転サーボ校正用
+  static float duty = 0;
+  Serial.printf(">duty:%f\n", (float)duty);
+  if (Serial.available())
+  {
+    char key = Serial.read();
+    if (key == 'w') {
+      duty += 0.01;
+    } else if (key == 's') {
+      duty -= 0.01;
+    }
+    servo2.set_duty(duty);
+  }
+  */
 }
 
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
@@ -170,7 +185,7 @@ void loop() {
       static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
       speaker.set_melody(kick_sound);
       servo0.set_angle(-20);
-      delay(100);
+      delay(300);
       servo0.set_angle(-90);
       delay(100);
       ball_sense = 0;

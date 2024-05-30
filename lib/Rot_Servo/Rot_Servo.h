@@ -10,7 +10,7 @@ class Rot_Servo {
          * @param channel pwmのチャンネル
          * @param pin ピン
         */
-        Rot_Servo(int channel, int pin, int offset);
+        Rot_Servo(int channel, int pin, float offset);
 
         /**
          * @brief 速度をセット
@@ -18,10 +18,16 @@ class Rot_Servo {
         */
         void set_speed(float speed);
 
+        /**
+         * @brief duty比をセット
+         * @param duty duty(%) 
+        */
+        void set_duty(float duty);
+
     private:
         // pwmのチャンネル
         int channel_;
-        int offset_;
+        float offset_;
 
 };
 

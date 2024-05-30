@@ -4,7 +4,7 @@
 
 #include "Rot_Servo.h"
 
-Rot_Servo::Rot_Servo(int channel, int pin, int offset = 0) :
+Rot_Servo::Rot_Servo(int channel, int pin, float offset = 0) :
  channel_(channel), offset_(offset)
 {
     // pwmのセットアップ
@@ -21,10 +21,13 @@ void Rot_Servo::set_speed(float speed) {
         speed = -1;
     }
 
-    int duty = 0; // speed = 0 のときは確実に止める
-    if (speed != 0) {
-        // -1.0~1.0を2.5%~12%に変換
-        duty = (speed * 9.5 / 2.0 + 7.25) * 4095 / 100.0 + offset_;
-    }
+    // -1.0~1.0を6%~8.5%に変換
+    constexpr float DUTY_MAX = 8.5;
+    constexpr float DUTY_MIN = 6;
+    int duty = (speed * (DUTY_MAX - DUTY_MIN) / 2.0 + (DUTY_MAX + DUTY_MIN) / 2.0 + offset_) * 4095 / 100.0;
     ledcWrite(channel_, duty);
+}
+
+void Rot_Servo::set_duty(float duty) {
+    ledcWrite(channel_, (int)(duty * 4095 / 100));
 }
