@@ -171,11 +171,11 @@ void loop() {
   target_vel.y = GamePad.getXaxisData() * -60.0;
   if (GamePad.isCirclePressed())
   {
-    target_angle += -0.03;
+    target_angle -= 0.1;
   }
   if (GamePad.isSquarePressed())
   {
-    target_angle += 0.9;
+    target_angle += 0.1;
   }
 #endif
 
