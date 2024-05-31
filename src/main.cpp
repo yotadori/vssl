@@ -167,8 +167,16 @@ void loop() {
 #ifdef USE_DABBLE
   // Dabble ゲームパッド
   Dabble.processInput();
-  target_vel.x = GamePad.getYaxisData() * 60.0;
-  target_vel.y = GamePad.getXaxisData() * -60.0;
+  if (GamePad.isCrossPressed()) {
+    float time = millis();
+    target_vel.x = 200 * sin(time / 500);
+    target_vel.y = 200 * cos(time / 500);
+  }
+  else
+  {
+    target_vel.x = GamePad.getYaxisData() * 60.0;
+    target_vel.y = GamePad.getXaxisData() * -60.0;
+  }
   if (GamePad.isCirclePressed())
   {
     target_angle -= 0.1;
