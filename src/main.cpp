@@ -83,15 +83,16 @@ void setup() {
   receiver.setup();
 #endif
 
-  speaker.beep(4);
+  speaker.beep(1);
   delay(200);
-  speaker.beep(4);
+  speaker.beep(1);
   delay(200);
   speaker.beep(5);
   delay(200);
   speaker.stop();
+  delay(200);
 
-  Speaker::tone_type doremi[]{{5, 20}, {4, 20}, {5, 20}, {0, 20}, {5, 20}, {4, 20}, {5, 20}, {0, 20}, {Speaker::STOP, 20}};
+  Speaker::tone_type doremi[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
   speaker.set_melody(doremi);
 
   // Dabble ゲームパッド
