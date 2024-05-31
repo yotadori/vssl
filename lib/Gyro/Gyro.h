@@ -35,10 +35,18 @@ class Gyro {
         */
         xyz_t vel();
 
+        /**
+         * @brief 角度
+         * @return 角度(rad)
+        */
+        float angle(); 
+
     private:
         xyz_t acc_; // 加速度
         xyz_t gyro_; // 角速度
+        xyz_t drift_; // ジャイロドリフト成分
         xyz_t vel_; // 推定速度 (x, y, angular)
+        float angle_; // 角度
         float tmp_; // 温度
 
         // 重力成分

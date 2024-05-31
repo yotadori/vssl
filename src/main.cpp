@@ -4,6 +4,7 @@
 #include "Rot_Servo.h"
 #include "Robo.h"
 #include "Speaker.h"
+#include "Gyro.h"
 
 #define USE_DABBLE // Dabbleを使わないならここをコメントアウト
 
@@ -18,11 +19,11 @@
 #endif
 
 constexpr int SERVO_PIN = D7;
-constexpr int ROT_PIN_1 = D2;
-constexpr int ROT_PIN_2 = D3;
-constexpr int ROT_PIN_3 = D4;
+constexpr int ROT_PIN_1 = D0;
+constexpr int ROT_PIN_2 = D1;
+constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D6;
-constexpr int ADC_PIN = D0;
+ constexpr int ADC_PIN = A2;
 constexpr int BALL_SENSE_PIN = D1;
 
 constexpr float BALL_SENSE_THRESHOLD = 14;
@@ -31,6 +32,8 @@ Servo servo0 = Servo(0, SERVO_PIN);
 Rot_Servo servo1 = Rot_Servo(1, ROT_PIN_1, 0.2);
 Rot_Servo servo2 = Rot_Servo(2, ROT_PIN_2, 0);
 Rot_Servo servo3 = Rot_Servo(3, ROT_PIN_3, 0.2);
+
+Gyro gyro = Gyro();
 
 Robo robo = Robo();
 
@@ -51,6 +54,84 @@ float ball_sense = 0;
 void timer1Task() {
 
   speaker.update(); 
+  gyro.update(); 
+}
+
+EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
+
+void setup() {
+
+  // put your setup code here, to run once:
+
+  servo0.set_angle(-90);
+  delay(500);
+  servo0.stop();
+  servo1.set_speed(0);
+  servo2.set_speed(0);
+  servo3.set_speed(0);
+
+  Serial.begin(115200);
+
+  // ADCでバッテリー電圧を読む
+  pinMode(ADC_PIN, INPUT);
+  // ADCでボールセンサの値を読む
+  // pinMode(BALL_SENSE_PIN, INPUT);
+
+  gyro.setup();
+
+#ifndef USE_DABBLE
+  receiver.setup();
+#endif
+
+  speaker.beep(4);
+  delay(200);
+  speaker.beep(4);
+  delay(200);
+  speaker.beep(5);
+  delay(200);
+  speaker.stop();
+
+  Speaker::tone_type doremi[]{{5, 20}, {4, 20}, {5, 20}, {0, 20}, {5, 20}, {4, 20}, {5, 20}, {0, 20}, {Speaker::STOP, 20}};
+  speaker.set_melody(doremi);
+
+  // Dabble ゲームパッド
+  Dabble.begin("VSSL");
+  
+  delay(1000);
+
+  // 割り込み 60Hz
+  // interval 17ms
+  timer1.begin(timer1Task, 17);
+}
+
+// 目標角度
+static float target_angle = 0;
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  // キック
+#ifndef USE_DABBLE
+  if (receiver.kick_flag()) {
+#endif
+#ifdef USE_DABBLE
+  if (GamePad.isTrianglePressed()) {
+#endif
+    //if (ball_sense > BALL_SENSE_THRESHOLD)
+    if (true)
+    {
+      // ボールセンサが反応しているとき
+      static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
+      speaker.set_melody(kick_sound);
+      servo0.set_angle(-20);
+      delay(300);
+      servo0.set_angle(-90);
+      delay(100);
+      ball_sense = 0;
+    }
+  } else {
+    servo0.stop();
+  }
 
   // DACでバッテリー電圧を読む
   long adc_val = analogRead(ADC_PIN);
@@ -67,11 +148,11 @@ void timer1Task() {
 
   // DACでボールセンサを読む
   constexpr float BALL_LPF_C = 0.8;
-  ball_sense = BALL_LPF_C * ball_sense + (1 - BALL_LPF_C) * analogRead(BALL_SENSE_PIN);
+  // ball_sense = BALL_LPF_C * ball_sense + (1 - BALL_LPF_C) * analogRead(BALL_SENSE_PIN);
   Serial.printf(">ball_sense:%f\n", (float)ball_sense);
 
-  // 目標速度
   xyz_t target_vel{0, 0, 0};
+
   const float lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
 #ifndef USE_DABBLE
   if (millis() - receiver.updated_time() < lost_time)
@@ -90,14 +171,15 @@ void timer1Task() {
   target_vel.y = GamePad.getXaxisData() * -60.0;
   if (GamePad.isCirclePressed())
   {
-    target_vel.z = -2;
+    target_angle += -0.03;
   }
   if (GamePad.isSquarePressed())
   {
-    target_vel.z = 2;
+    target_angle += 0.9;
   }
 #endif
 
+  target_vel.z = 9 * (target_angle - gyro.angle());
   xyz_t out_vel = robo.execute(target_vel);
 
   constexpr float MAX_SPEED = 400.0; // 最大速度(mm/s) 
@@ -122,79 +204,6 @@ void timer1Task() {
     servo2.set_duty(duty);
   }
   */
-}
 
-EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
-
-void setup() {
-
-  // put your setup code here, to run once:
-
-  servo0.set_angle(-90);
-  delay(500);
-  servo0.stop();
-  servo1.set_speed(0);
-  servo2.set_speed(0);
-  servo3.set_speed(0);
-
-  Serial.begin(115200);
-
-  // ADCでバッテリー電圧を読む
-  pinMode(ADC_PIN, INPUT);
-  // ADCでボールセンサの値を読む
-  pinMode(BALL_SENSE_PIN, INPUT);
-
-#ifndef USE_DABBLE
-  receiver.setup();
-#endif
-
-  delay(1000);
-
-  speaker.beep(4);
-  delay(200);
-  speaker.beep(4);
-  delay(200);
-  speaker.beep(5);
-  delay(200);
-  speaker.stop();
-
-  Speaker::tone_type doremi[]{{5, 20}, {4, 20}, {5, 20}, {0, 20}, {5, 20}, {4, 20}, {5, 20}, {0, 20}, {Speaker::STOP, 20}};
-  speaker.set_melody(doremi);
-
-  // Dabble ゲームパッド
-  Dabble.begin("VSSL");
-
-  // 割り込み 60Hz
-  // interval 17ms
-  timer1.begin(timer1Task, 17);
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
-  // キック
-#ifndef USE_DABBLE
-  if (receiver.kick_flag()) {
-#endif
-#ifdef USE_DABBLE
-  if (GamePad.isTrianglePressed()) {
-#endif
-    if (ball_sense > BALL_SENSE_THRESHOLD)
-    {
-      // ボールセンサが反応しているとき
-      static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
-      speaker.set_melody(kick_sound);
-      servo0.set_angle(-20);
-      delay(300);
-      servo0.set_angle(-90);
-      delay(100);
-      ball_sense = 0;
-    }
-  } else {
-    servo0.stop();
-  }
-  delay(10);
-
-
-  
+  delay(17);
 }

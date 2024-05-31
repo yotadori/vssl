@@ -7,7 +7,7 @@
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
 
 Gyro::Gyro() :
-    acc_{0}, gyro_{0}, tmp_(0), vel_{0}
+    acc_{0}, gyro_{0}, drift_{0}, tmp_(0), vel_{0}, angle_(0)
 {}
 
 void Gyro::setup() {
@@ -18,10 +18,12 @@ void Gyro::setup() {
   Wire.endTransmission(true);
 
   // 補正値を安定させる
+  /*
   for (int i = 0; i < 100; i++) {
     update();
     delay(50);
   }
+  */
   vel_.x = 0;
   vel_.y = 0;
   vel_.z = 0;
@@ -48,16 +50,15 @@ void Gyro::update() {
   acc.y = AcY / 65536.0 * 4.0 * 9800;
   acc.z = AcZ / 65536.0 * 4.0 * 9800;
   tmp_ = Tmp/340.00+36.53;
-  gyro_.x = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
-  gyro_.y = GyY / 65536.0 * 500.0 / 360.0 * 6.283;
-  gyro_.z = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
+  //gyro_.x = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
+  gyro_.x = GyX * 0.0000009026;
 
   // alpha is calculated as t / (t + dT)
   // with t, the low-pass filter's time-constant
   // and dT, the event delivery rate
-  const float alpha = 0.8;
+  const float alpha = 0.99;
 
-  // LPF
+  // 重力成分
   gravity_.x = alpha * gravity_.x + (1 - alpha) * acc.x;
   gravity_.y = alpha * gravity_.y + (1 - alpha) * acc.y;
   gravity_.z = alpha * gravity_.z + (1 - alpha) * acc.z;
@@ -66,6 +67,16 @@ void Gyro::update() {
   acc_.x = acc.x - gravity_.x;
   acc_.y = acc.y - gravity_.y;
   acc_.z = acc.z - gravity_.z;
+
+  if (abs(gyro_.x) < 0.001)
+  {
+    // 角速度が小さい時
+    // ジャイロのドリフト成分を計算する
+    drift_.x = alpha * drift_.x + (1 - alpha) * gyro_.x;
+  }
+
+  // ドリフト成分除去
+  gyro_.x = gyro_.x - drift_.x;
 
   // 前回計算した時から今までの経過時間を算出
   static float preInterval = 0.0;
@@ -79,6 +90,11 @@ void Gyro::update() {
   vel_.x = beta * vel_.x + (1 - beta) * (vel_.x + acc_.x * interval * 0.001);
   vel_.y = beta * vel_.y + (1 - beta) * (vel_.y + acc_.y * interval * 0.001);
   vel_.z = beta * vel_.z + (1 - beta) * (vel_.z + acc_.z * interval * 0.001);
+
+  // 角速度を積分して角度を算出
+  angle_ = angle_ + (gyro_.x * interval * 0.001);
+  Serial.printf(">angle:%f\n", (float)angle_);
+  Serial.printf(">gyro:%f\n", (float)gyro_.x);
 }
 
 xyz_t Gyro::acc() {
@@ -91,4 +107,9 @@ xyz_t Gyro::gyro() {
 
 xyz_t Gyro::vel() {
     return vel_;
+}
+
+float Gyro::angle()
+{
+  return angle_;
 }
