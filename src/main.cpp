@@ -19,12 +19,12 @@
 #endif
 
 constexpr int SERVO_PIN = D7;
-constexpr int ROT_PIN_1 = D0;
-constexpr int ROT_PIN_2 = D1;
+constexpr int ROT_PIN_1 = D10;
+constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D6;
- constexpr int ADC_PIN = A2;
-constexpr int BALL_SENSE_PIN = D1;
+ constexpr int ADC_PIN = A1;
+constexpr int BALL_SENSE_PIN = A0;
 
 constexpr float BALL_SENSE_THRESHOLD = 14;
 
@@ -118,8 +118,7 @@ void loop() {
 #ifdef USE_DABBLE
   if (GamePad.isTrianglePressed()) {
 #endif
-    //if (ball_sense > BALL_SENSE_THRESHOLD)
-    if (true)
+    if (ball_sense > BALL_SENSE_THRESHOLD)
     {
       // ボールセンサが反応しているとき
       static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
@@ -149,7 +148,7 @@ void loop() {
 
   // DACでボールセンサを読む
   constexpr float BALL_LPF_C = 0.8;
-  // ball_sense = BALL_LPF_C * ball_sense + (1 - BALL_LPF_C) * analogRead(BALL_SENSE_PIN);
+  ball_sense = BALL_LPF_C * ball_sense + (1 - BALL_LPF_C) * analogRead(BALL_SENSE_PIN);
   Serial.printf(">ball_sense:%f\n", (float)ball_sense);
 
   xyz_t target_vel{0, 0, 0};
