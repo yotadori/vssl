@@ -26,8 +26,6 @@ constexpr int SPEAKER_PIN = D6;
  constexpr int ADC_PIN = A1;
 constexpr int BALL_SENSE_PIN = A0;
 
-constexpr float BALL_SENSE_THRESHOLD = 14;
-
 Servo servo0 = Servo(0, SERVO_PIN);
 Rot_Servo servo1 = Rot_Servo(1, ROT_PIN_1, 0.2);
 Rot_Servo servo2 = Rot_Servo(2, ROT_PIN_2, 0);
@@ -50,6 +48,7 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 float batt_v = 4.8;
 // ボールセンサの値
 float ball_sense = 0;
+float ball_sense_average = 0;
 
 void timer1Task() {
 
@@ -75,7 +74,8 @@ void setup() {
   // ADCでバッテリー電圧を読む
   pinMode(ADC_PIN, INPUT);
   // ADCでボールセンサの値を読む
-  // pinMode(BALL_SENSE_PIN, INPUT);
+  pinMode(BALL_SENSE_PIN, INPUT);
+  ball_sense_average = analogRead(BALL_SENSE_PIN);
 
   gyro.setup();
 
@@ -118,7 +118,7 @@ void loop() {
 #ifdef USE_DABBLE
   if (GamePad.isTrianglePressed()) {
 #endif
-    if (ball_sense > BALL_SENSE_THRESHOLD)
+    if (ball_sense > ball_sense_average * 1.2)
     {
       // ボールセンサが反応しているとき
       static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
@@ -149,7 +149,11 @@ void loop() {
   // DACでボールセンサを読む
   constexpr float BALL_LPF_C = 0.8;
   ball_sense = BALL_LPF_C * ball_sense + (1 - BALL_LPF_C) * analogRead(BALL_SENSE_PIN);
+  constexpr float AVERAGE_LPF_C = 0.9999;
+  ball_sense_average = AVERAGE_LPF_C * ball_sense_average + (1 - AVERAGE_LPF_C) * ball_sense;
   Serial.printf(">ball_sense:%f\n", (float)ball_sense);
+  Serial.printf(">ball_sense_average:%f\n", (float)ball_sense_average);
+  Serial.printf(">ball_on:%f\n", ball_sense - ball_sense_average * 1.2);
 
   xyz_t target_vel{0, 0, 0};
 
