@@ -75,7 +75,6 @@ void setup() {
   pinMode(ADC_PIN, INPUT);
   // ADCでボールセンサの値を読む
   pinMode(BALL_SENSE_PIN, INPUT);
-  ball_sense_average = analogRead(BALL_SENSE_PIN);
 
   gyro.setup();
 
@@ -96,9 +95,10 @@ void setup() {
   speaker.set_melody(doremi);
 
   // Dabble ゲームパッド
-  Dabble.begin("VSSL");
+  Dabble.begin("VSSL1");
   
   delay(1000);
+  ball_sense_average = analogRead(BALL_SENSE_PIN);
 
   // 割り込み 60Hz
   // interval 17ms
@@ -118,7 +118,7 @@ void loop() {
 #ifdef USE_DABBLE
   if (GamePad.isTrianglePressed()) {
 #endif
-    if (ball_sense > ball_sense_average * 1.2)
+    if (ball_sense > ball_sense_average * 1.1)
     {
       // ボールセンサが反応しているとき
       static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
@@ -153,7 +153,7 @@ void loop() {
   ball_sense_average = AVERAGE_LPF_C * ball_sense_average + (1 - AVERAGE_LPF_C) * ball_sense;
   Serial.printf(">ball_sense:%f\n", (float)ball_sense);
   Serial.printf(">ball_sense_average:%f\n", (float)ball_sense_average);
-  Serial.printf(">ball_on:%f\n", ball_sense - ball_sense_average * 1.2);
+  Serial.printf(">ball_on:%f\n", ball_sense - ball_sense_average * 1.05);
 
   xyz_t target_vel{0, 0, 0};
 
