@@ -37,10 +37,10 @@ void Dabble_Receiver::update() {
     vel_.z = 0;
     if (GamePad.isCirclePressed())
     {
-        vel_.z = -1;
+        vel_.z = -5;
     }
     if (GamePad.isSquarePressed())
     {
-        vel_.z = 1;
+        vel_.z = 5;
     }
 }
