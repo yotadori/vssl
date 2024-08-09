@@ -4,6 +4,10 @@
 
 #include "Context.h"
 #include "Arduino.h"
+#include "Rot_Servo.h"
+#include "Servo.h"
+#include "Speaker.h"
+#include "Gyro.h"
 
 // ロボットの状態を管理するクラス
 class Robo {
@@ -14,7 +18,9 @@ class Robo {
         /**
          * @brief コンストラクタ
         */
-        Robo();
+        Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro& gyro);
+
+        void setup();
 
         /**
          * @brief 値を更新
@@ -25,15 +31,27 @@ class Robo {
         /**
          * @brief 制御値を更新
          * @param 目標速度
-         * @return 出力速度
         */
-        xyz_t execute(xyz_t target_vel);
+        void execute(xyz_t target_vel);
+
+        /**
+         * @brief kick
+         */
+        void kick();
 
     private:
         xyz_t vel_; // 推定速度 (x, y, angular)
         xyz_t out_vel_; // 出力速度 (x, y, angular)
         xyz_t error_;
         xyz_t integral_;
+
+        Rot_Servo& rot1_;
+        Rot_Servo& rot2_;
+        Rot_Servo& rot3_;
+
+        Servo& servo_;
+
+        Gyro& gyro_;
 };
 
 #endif // ROBO_H
