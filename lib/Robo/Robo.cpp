@@ -52,7 +52,7 @@ void Robo::execute(xyz_t target_vel) {
 
 void Robo::kick()
 {
-  servo_.set_angle(-20);
+  servo_.set_angle(-45);
   delay(300);
   servo_.set_angle(-90);
   delay(100);

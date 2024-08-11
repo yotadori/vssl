@@ -17,16 +17,25 @@ Receiver receiver = Udp_Receiver(ssid, password);
 #include "Dabble_Receiver.h"
 Dabble_Receiver receiver = Dabble_Receiver();
 
+/*
 constexpr int SERVO_PIN = D7;
 constexpr int ROT_PIN_1 = D10;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D6;
+*/
+
+// AI module adapted circuit
+constexpr int SERVO_PIN = D10;
+constexpr int ROT_PIN_1 = D1;
+constexpr int ROT_PIN_2 = D2;
+constexpr int ROT_PIN_3 = D3;
+constexpr int SPEAKER_PIN = D0;
 
 Servo servo0 = Servo(0, SERVO_PIN);
-Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0.2);
+Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
 Rot_Servo rot2 = Rot_Servo(2, ROT_PIN_2, 0);
-Rot_Servo rot3 = Rot_Servo(3, ROT_PIN_3, 0.2);
+Rot_Servo rot3 = Rot_Servo(3, ROT_PIN_3, 0);
 
 Gyro gyro = Gyro();
 
