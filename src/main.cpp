@@ -14,8 +14,13 @@ char* password = "x9eyusp7";
 Receiver receiver = Udp_Receiver(ssid, password);
 */
 
+/*
 #include "Dabble_Receiver.h"
 Dabble_Receiver receiver = Dabble_Receiver();
+*/
+
+#include "UART_Receiver.h"
+UART_Receiver receiver = UART_Receiver();
 
 /*
 constexpr int SERVO_PIN = D7;
@@ -68,15 +73,15 @@ void setup() {
   speaker.stop();
   delay(200);
 
-  Speaker::tone_type doremi[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
-  speaker.set_melody(doremi);
-
   receiver.setup();
 
   delay(1000);
 
   // 割り込み 60Hz
   // interval 17ms
+  Speaker::tone_type doremi[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
+  speaker.set_melody(doremi);
+
   timer1.begin(timer1Task, 17);
 }
 
@@ -86,25 +91,31 @@ static float target_angle = 0;
 void loop() {
   // put your main code here, to run repeatedly:
 
-  receiver.update();
-
-  // キック
-  if (receiver.kick_flag()) {
-    static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
-    speaker.set_melody(kick_sound);
-    robo.kick();
-  }
+  receiver.update(); 
 
   xyz_t target_vel{0, 0, 0};
 
   constexpr float cycle = 17;
-  const float lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
+  constexpr unsigned long lost_time = 3000.0; // 通信が途切れてからロスト判定するまでの時間
 
-  target_vel = receiver.vel();
-  target_angle += target_vel.z * cycle / 1000.0;
-  Serial.printf("%f, %f, %f", receiver.vel().x, receiver.vel().y, receiver.vel().z);
-  Serial.println(receiver.kick_flag());
+  if (millis() - receiver.updated_time() < lost_time)
+  {
+    // キック
+    if (receiver.kick_flag())
+    {
+      static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
+      speaker.set_melody(kick_sound);
+      robo.kick();
+    }
 
+    target_vel = receiver.vel();
+    target_angle += target_vel.z * cycle / 1000.0;
+    Serial.printf("%f, %f, %f", receiver.vel().x, receiver.vel().y, receiver.vel().z);
+    Serial.println(receiver.kick_flag());
+  } else {
+    Serial.println("receiver timeout");
+  }
+    
   target_vel.z = 9 * (target_angle - gyro.angle());
   robo.execute(target_vel);
 

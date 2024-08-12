@@ -21,7 +21,7 @@ class Receiver {
     protected:
         xyz_t vel_;
         bool kick_flag_;        
-        float last_updated_time_;
+        unsigned long last_updated_time_;
 };
 
 #endif // RECEIVER_H

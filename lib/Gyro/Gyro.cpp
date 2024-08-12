@@ -93,8 +93,8 @@ void Gyro::update() {
 
   // 角速度を積分して角度を算出
   angle_ = angle_ + (gyro_.x * interval * 0.001);
-  Serial.printf(">angle:%f\n", (float)angle_);
-  Serial.printf(">gyro:%f\n", (float)gyro_.x);
+  // Serial.printf(">angle:%f\n", (float)angle_);
+  // Serial.printf(">gyro:%f\n", (float)gyro_.x);
 }
 
 xyz_t Gyro::acc() {
