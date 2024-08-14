@@ -39,6 +39,11 @@ class Robo {
          */
         void kick();
 
+        /**
+         * @brief stop all motors
+         */
+        void stop();
+
     private:
         xyz_t vel_; // 推定速度 (x, y, angular)
         xyz_t out_vel_; // 出力速度 (x, y, angular)
@@ -52,6 +57,9 @@ class Robo {
         Servo& servo_;
 
         Gyro& gyro_;
+
+        bool kicking_;
+        unsigned int kick_count_;
 };
 
 #endif // ROBO_H

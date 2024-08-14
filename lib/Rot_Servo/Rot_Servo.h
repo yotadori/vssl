@@ -24,6 +24,11 @@ class Rot_Servo {
         */
         void set_duty(float duty);
 
+        /**
+         * @brief 力を抜いて止める
+        */
+        void stop();
+
     private:
         // pwmのチャンネル
         int channel_;

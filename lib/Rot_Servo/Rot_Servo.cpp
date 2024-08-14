@@ -31,3 +31,7 @@ void Rot_Servo::set_speed(float speed) {
 void Rot_Servo::set_duty(float duty) {
     ledcWrite(channel_, (int)(duty * 4095 / 100));
 }
+
+void Rot_Servo::stop() {
+    ledcWrite(channel_, 0);
+}

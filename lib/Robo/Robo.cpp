@@ -7,7 +7,9 @@ Robo::Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro
     rot2_{rot2},
     rot3_{rot3},
     servo_{servo},
-    gyro_{gyro}
+    gyro_{gyro},
+    kicking_(false),
+    kick_count_(0)
 {}
 
 void Robo::setup() {
@@ -48,13 +50,38 @@ void Robo::execute(xyz_t target_vel) {
   rot1_.set_speed((0.866 * out_vel_.x + 0.500 * out_vel_.y + Robo::RADIUS * out_vel_.z) / MAX_SPEED);
   rot2_.set_speed((0.000 * out_vel_.x - 1.000 * out_vel_.y + Robo::RADIUS * out_vel_.z) / MAX_SPEED);
   rot3_.set_speed((-0.866 * out_vel_.x + 0.500 * out_vel_.y + Robo::RADIUS * out_vel_.z) / MAX_SPEED);
+
+  // kick
+  if (kicking_)
+  {
+    if (kick_count_ < 17)
+    {
+      servo_.set_angle(-45);
+    }
+    else if (kick_count_ < 22)
+    {
+      servo_.set_angle(-90);
+    }
+    else
+    {
+      servo_.stop();
+      kicking_ = false;
+    }
+    kick_count_++;
+  }
 }
 
 void Robo::kick()
 {
-  servo_.set_angle(-45);
-  delay(300);
-  servo_.set_angle(-90);
-  delay(100);
+  if (!kicking_) {
+    kick_count_ = 0;
+    kicking_ = true;
+  }
+}
+
+void Robo::stop() {
   servo_.stop();
+  rot1_.stop();
+  rot2_.stop();
+  rot3_.stop();
 }

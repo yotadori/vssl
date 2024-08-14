@@ -48,6 +48,8 @@ Robo robo = Robo(rot1, rot2, rot3, servo0, gyro);
 
 Speaker speaker = Speaker(4, SPEAKER_PIN);
 
+bool timeout_ = false;
+
 void timer1Task() {
 
   speaker.update(); 
@@ -75,14 +77,13 @@ void setup() {
 
   receiver.setup();
 
-  delay(1000);
-
   // 割り込み 60Hz
   // interval 17ms
   Speaker::tone_type doremi[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
   speaker.set_melody(doremi);
 
   timer1.begin(timer1Task, 17);
+  delay(1000);
 }
 
 // 目標角度
@@ -100,6 +101,12 @@ void loop() {
 
   if (millis() - receiver.updated_time() < lost_time)
   {
+    if (timeout_)
+    {
+      Speaker::tone_type connected_sound[]{{1, 10}, {3, 10}, {5, 10}, {Speaker::STOP, 20}};
+      speaker.set_melody(connected_sound);
+      timeout_ = false;
+    }
     // キック
     if (receiver.kick_flag())
     {
@@ -112,12 +119,20 @@ void loop() {
     target_angle += target_vel.z * cycle / 1000.0;
     Serial.printf("%f, %f, %f", receiver.vel().x, receiver.vel().y, receiver.vel().z);
     Serial.println(receiver.kick_flag());
-  } else {
+    target_vel.z = 9 * (target_angle - gyro.angle());
+    robo.execute(target_vel);
+  }
+  else
+  {
+    if (!timeout_)
+    {
+      Speaker::tone_type timeout_sound[]{{5, 10}, {3, 10}, {1, 10}, {Speaker::STOP, 20}};
+      speaker.set_melody(timeout_sound);
+      timeout_ = true;
+    }
+    robo.stop();
     Serial.println("receiver timeout");
   }
-    
-  target_vel.z = 9 * (target_angle - gyro.angle());
-  robo.execute(target_vel);
 
   delay(cycle);
 }
