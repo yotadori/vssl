@@ -16,7 +16,6 @@ class UART_Receiver : public Receiver {
         void update() override;
 
     private:
-        HardwareSerial mySerial_;
 
 };
 

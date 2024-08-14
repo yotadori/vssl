@@ -2,16 +2,14 @@
 
 #include "UART_Receiver.h"
 
-UART_Receiver::UART_Receiver() : Receiver(), mySerial_{0}
+UART_Receiver::UART_Receiver() : Receiver()
 {
 }
 
 void UART_Receiver::setup() {
-    const int RX_PIN = 7;
-    const int TX_PIN = 6;
     const int BAUD_RATE = 115200;
 
-    mySerial_.begin(BAUD_RATE, SERIAL_8N1, RX_PIN, TX_PIN);
+    Serial1.begin(BAUD_RATE, SERIAL_8N1, D7, D6);
 
     Serial.println("UART Receiver started");
 }
@@ -25,12 +23,12 @@ void UART_Receiver::update()
     int kick;
 
     // データがあるか確認
-    if (mySerial_.available())
+    if (Serial1.available())
     {
         // 時刻を取得
         last_updated_time_ = millis();
 
-        receivedData = mySerial_.readStringUntil('\n'); // データを1行（改行まで）読み取る
+        receivedData = Serial1.readStringUntil('\n'); // データを1行（改行まで）読み取る
 
         // カンマでデータを分割
         int firstComma = receivedData.indexOf(',');
