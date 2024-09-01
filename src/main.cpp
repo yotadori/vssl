@@ -97,7 +97,7 @@ void loop() {
   xyz_t target_vel{0, 0, 0};
 
   constexpr float cycle = 17;
-  constexpr unsigned long lost_time = 3000.0; // 通信が途切れてからロスト判定するまでの時間
+  constexpr unsigned long lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
 
   if (millis() - receiver.updated_time() < lost_time)
   {

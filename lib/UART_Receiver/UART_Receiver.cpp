@@ -35,7 +35,7 @@ void UART_Receiver::update()
 
         vel_.x = val[0];
         vel_.y = val[1];
-        vel_.z = val[2];
+        vel_.z = val[2] / 1000.0;
         kick_flag_ = val[3] != 0;
     }
 }
