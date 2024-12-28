@@ -7,35 +7,35 @@
 #include "Gyro.h"
 
 #include "Receiver.h"
-/*
 char* ssid = "F660A-xRb9-G";
 char* password = "x9eyusp7";
-#include "Udp_Receiver"
-Receiver receiver = Udp_Receiver(ssid, password);
-*/
+#include "Udp_Receiver.h"
+Udp_Receiver receiver = Udp_Receiver(ssid, password);
 
 /*
 #include "Dabble_Receiver.h"
 Dabble_Receiver receiver = Dabble_Receiver();
 */
 
+/*
 #include "UART_Receiver.h"
 UART_Receiver receiver = UART_Receiver();
+*/
 
-/*
 constexpr int SERVO_PIN = D7;
 constexpr int ROT_PIN_1 = D10;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D6;
-*/
 
+/*
 // AI module adapted circuit
 constexpr int SERVO_PIN = D10;
 constexpr int ROT_PIN_1 = D1;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D0;
+*/
 
 Servo servo0 = Servo(0, SERVO_PIN);
 Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
