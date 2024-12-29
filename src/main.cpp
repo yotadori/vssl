@@ -89,15 +89,20 @@ void setup() {
 // 目標角度
 static float target_angle = 0;
 
+static unsigned long loop_time = millis();
+
 void loop() {
   // put your main code here, to run repeatedly:
+  constexpr float cycle = 1.0 / 60 * 1000;
+  constexpr unsigned long lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
+
+  // 一定の周期で回す
+  while (millis() - loop_time < cycle);
+  loop_time = millis();
 
   receiver.update(); 
 
   xyz_t target_vel{0, 0, 0};
-
-  constexpr float cycle = 17;
-  constexpr unsigned long lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
 
   if (millis() - receiver.updated_time() < lost_time)
   {
@@ -134,5 +139,4 @@ void loop() {
     Serial.println("receiver timeout");
   }
 
-  delay(cycle);
 }
