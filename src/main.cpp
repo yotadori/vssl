@@ -5,12 +5,66 @@
 #include "Robo.h"
 #include "Speaker.h"
 #include "Gyro.h"
-
 #include "Receiver.h"
+
+
+//////////////////////////////////////////////
+//        RemoteXY include library          //
+//////////////////////////////////////////////
+
+// you can enable debug logging to Serial at 115200
+//#define REMOTEXY__DEBUGLOG    
+
+// RemoteXY select connection mode and include library 
+#define REMOTEXY_MODE__WIFI_POINT
+
+#include <WiFi.h>
+
+// RemoteXY connection settings 
+#define REMOTEXY_WIFI_SSID "RemoteXY"
+#define REMOTEXY_WIFI_PASSWORD "12345678"
+#define REMOTEXY_SERVER_PORT 6377
+
+
+#include <RemoteXY.h>
+
+// RemoteXY GUI configuration  
+#pragma pack(push, 1)  
+uint8_t RemoteXY_CONF[] =   // 75 bytes
+  { 255,5,0,0,0,68,0,19,0,0,0,0,31,1,200,84,1,1,5,0,
+  5,13,21,60,60,32,2,26,31,5,127,21,60,60,32,177,26,31,129,34,
+  9,18,12,64,17,88,45,89,0,129,138,9,38,12,64,17,65,78,71,76,
+  69,0,1,78,22,44,57,3,249,31,75,73,67,75,0 };
+  
+// this structure defines all the variables and events of your control interface 
+struct {
+
+    // input variables
+  int8_t joystick_01_x; // from -100 to 100
+  int8_t joystick_01_y; // from -100 to 100
+  int8_t joystick_02_x; // from -100 to 100
+  int8_t joystick_02_y; // from -100 to 100
+  uint8_t button_01; // =1 if button pressed, else =0
+
+    // other variable
+  uint8_t connect_flag;  // =1 if wire connected, else =0
+
+} RemoteXY;   
+#pragma pack(pop)
+ 
+/////////////////////////////////////////////
+//           END RemoteXY include          //
+/////////////////////////////////////////////
+
+#include "RemoteXY_Receiver.h"
+RemoteXY_Receiver receiver = RemoteXY_Receiver();
+
+/*
 char* ssid = "F660A-xRb9-G";
 char* password = "x9eyusp7";
 #include "Udp_Receiver.h"
 Udp_Receiver receiver = Udp_Receiver(ssid, password);
+*/
 
 /*
 #include "Dabble_Receiver.h"
@@ -59,6 +113,7 @@ void timer1Task() {
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
 
 void setup() {
+  RemoteXY_Init();
 
   // put your setup code here, to run once:
 
@@ -99,6 +154,14 @@ void loop() {
   // 一定の周期で回す
   while (millis() - loop_time < cycle);
   loop_time = millis();
+
+  RemoteXY_Handler();
+  xyz_t remote_vel{
+    RemoteXY.joystick_01_y * 3.0,
+    RemoteXY.joystick_01_x * -3.0,
+    RemoteXY.joystick_02_x * -0.03
+  };
+  receiver.set_values(remote_vel, RemoteXY.button_01);
 
   receiver.update(); 
 
