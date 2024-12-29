@@ -64,7 +64,7 @@ void Udp_Receiver::update_data(uint8_t* data) {
 
     // 速度指令にかける倍率
     static constexpr float linear_coef = 0.2;
-    static constexpr float angular_coef = 0.4;
+    static constexpr float angular_coef = 1.0;
 
     // mm/s, mm/s, rad/s
     vel_.y =
