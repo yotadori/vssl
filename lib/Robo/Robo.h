@@ -61,10 +61,10 @@ class Robo {
     private:
         xyz_t target_vel_; // 目標速度
         float target_angle_; // 目標角度
+        float angle_error_; // 角度の誤差
+        float angle_integral_; // 角度の誤差の積分
 
         xyz_t vel_; // 推定速度 (x, y, angular)
-        xyz_t error_; // 速度誤差 (x, y, angular)
-        xyz_t integral_; // errorの積分
 
         // モーター
         Rot_Servo& rot1_;

@@ -122,6 +122,7 @@ void setup() {
   robo.setup(); 
 
   Serial.begin(115200);
+  Serial.println("hello from tiny soccer robot");
 
   speaker.beep(1);
   delay(200);
@@ -134,11 +135,10 @@ void setup() {
 
   receiver.setup();
 
-  // 割り込み 60Hz
-  // interval 17ms
   Speaker::tone_type doremi[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
   speaker.set_melody(doremi);
 
+  // 割り込み
   timer1.begin(timer1Task, cycle);
   delay(1000);
 }
