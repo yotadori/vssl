@@ -17,48 +17,67 @@ class Robo {
 
         /**
          * @brief コンストラクタ
+         * @param rot1 モーター1
+         * @param rot2 モーター2
+         * @param rot3 モーター3
+         * @param servo キック用サーボモーター
+         * @param gyro ジャイロ
         */
         Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro& gyro);
 
+        /**
+         * @brief setup （setupで呼ぶ）
+         */
         void setup();
 
         /**
-         * @brief 値を更新
-         * @param 推定速度
+         * @brief 制御値を更新（一定周期で呼ぶこと）
+         * @param cycle 周期
         */
-        void update(xyz_t vel);
+        void execute(float cycle);
 
         /**
-         * @brief 制御値を更新
-         * @param 目標速度
-        */
-        void execute(xyz_t target_vel);
-
-        /**
-         * @brief kick
+         * @brief キック
          */
         void kick();
 
         /**
-         * @brief stop all motors
+         * @brief 足回りのモーターをすべて停止
          */
         void stop();
 
-    private:
-        xyz_t vel_; // 推定速度 (x, y, angular)
-        xyz_t out_vel_; // 出力速度 (x, y, angular)
-        xyz_t error_;
-        xyz_t integral_;
+        //// 以下 setter ////
+        
+        /**
+         * @brief 目標速度を設定
+         */
+        void set_target_vel(xyz_t target_vel);
 
+        /**
+         * @brief 目標角度を設定
+         */
+        void set_target_angle(float angle);
+
+    private:
+        xyz_t target_vel_; // 目標速度
+        float target_angle_; // 目標角度
+
+        xyz_t vel_; // 推定速度 (x, y, angular)
+        xyz_t error_; // 速度誤差 (x, y, angular)
+        xyz_t integral_; // errorの積分
+
+        // モーター
         Rot_Servo& rot1_;
         Rot_Servo& rot2_;
         Rot_Servo& rot3_;
 
+        // キック用モーター
         Servo& servo_;
 
+        // ジャイロ
         Gyro& gyro_;
 
-        bool kicking_;
+        bool kicking_; // キック動作中か
         unsigned int kick_count_;
 };
 

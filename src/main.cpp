@@ -76,20 +76,20 @@ Dabble_Receiver receiver = Dabble_Receiver();
 UART_Receiver receiver = UART_Receiver();
 */
 
+/*
 constexpr int SERVO_PIN = D7;
 constexpr int ROT_PIN_1 = D10;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D6;
+*/
 
-/*
 // AI module adapted circuit
 constexpr int SERVO_PIN = D10;
 constexpr int ROT_PIN_1 = D1;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D0;
-*/
 
 Servo servo0 = Servo(0, SERVO_PIN);
 Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
@@ -104,10 +104,12 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 
 bool timeout_ = false;
 
-void timer1Task() {
+float cycle = 17;
 
+void timer1Task() {
   speaker.update(); 
   gyro.update(); 
+  robo.execute(cycle);
 }
 
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
@@ -137,7 +139,7 @@ void setup() {
   Speaker::tone_type doremi[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
   speaker.set_melody(doremi);
 
-  timer1.begin(timer1Task, 17);
+  timer1.begin(timer1Task, cycle);
   delay(1000);
 }
 
@@ -148,11 +150,10 @@ static unsigned long loop_time = millis();
 
 void loop() {
   // put your main code here, to run repeatedly:
-  constexpr float cycle = 1.0 / 60 * 1000;
   constexpr unsigned long lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
 
   // 一定の周期で回す
-  while (millis() - loop_time < cycle);
+  while (millis() - loop_time < 1.0 / 60 * 1000);
   loop_time = millis();
 
   RemoteXY_Handler();
@@ -183,12 +184,7 @@ void loop() {
       robo.kick();
     }
 
-    target_vel = receiver.vel();
-    target_angle += target_vel.z * cycle / 1000.0;
-    Serial.printf("%f, %f, %f", receiver.vel().x, receiver.vel().y, receiver.vel().z);
-    Serial.println(receiver.kick_flag());
-    target_vel.z = 9 * (target_angle - gyro.angle());
-    robo.execute(target_vel);
+    robo.set_target_vel(receiver.vel());
   }
   else
   {
