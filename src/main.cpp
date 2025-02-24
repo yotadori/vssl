@@ -104,7 +104,7 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 
 bool timeout_ = false;
 
-float cycle = 17;
+float cycle = 10;
 
 void timer1Task() {
   speaker.update(); 
@@ -120,6 +120,7 @@ void setup() {
   // put your setup code here, to run once:
 
   robo.setup(); 
+  robo.stop();
 
   Serial.begin(115200);
   Serial.println("hello from tiny soccer robot");
@@ -149,6 +150,18 @@ static float target_angle = 0;
 static unsigned long loop_time = millis();
 
 void loop() {
+  robo.set_target_vel({80, 0, 0});
+  /*
+  sleep(2);
+  robo.set_target_angle(-0.5 * PI);
+  sleep(2);
+  robo.set_target_angle(-1.0 * PI);
+  sleep(2);
+  robo.set_target_angle(-1.5 * PI);
+  sleep(2);
+  robo.set_target_angle(-2.0 * PI);
+  */
+
   // put your main code here, to run repeatedly:
   constexpr unsigned long lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
 

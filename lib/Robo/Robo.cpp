@@ -29,7 +29,7 @@ void Robo::setup() {
 void Robo::execute(float cycle) {
 
   constexpr float MAX_SPEED = 300.0; // 最大速度(mm/s) 
-  constexpr float MAX_OMEGA = 3; // 最大角速度(rad/s)
+  constexpr float MAX_OMEGA = 2; // 最大角速度(rad/s)
 
   auto clamp = [](float a, float limit) {
     if (a > limit) {

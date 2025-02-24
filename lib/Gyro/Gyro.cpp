@@ -51,12 +51,12 @@ void Gyro::update() {
   acc.z = AcZ / 65536.0 * 4.0 * 9800;
   tmp_ = Tmp/340.00+36.53;
   //gyro_.x = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
-  gyro_.x = GyX * 0.000001596; // 角度がずれる(180度がでない)場合はここを調整する
+  gyro_.x = GyX * 0.0000009; // 角度がずれる(180度がでない)場合はここを調整する
 
   // alpha is calculated as t / (t + dT)
   // with t, the low-pass filter's time-constant
   // and dT, the event delivery rate
-  const float alpha = 0.99;
+  const float alpha = 0.999;
 
   // 重力成分
   gravity_.x = alpha * gravity_.x + (1 - alpha) * acc.x;
@@ -75,6 +75,8 @@ void Gyro::update() {
     drift_.x = alpha * drift_.x + (1 - alpha) * gyro_.x;
   }
 
+  Serial.printf(">gyro:%f\n", (float)gyro_.x);
+
   // ドリフト成分除去
   gyro_.x = gyro_.x - drift_.x;
 
@@ -83,7 +85,7 @@ void Gyro::update() {
   static float interval = millis() - preInterval;
   preInterval = millis();
 
-  const float beta = 0.99;
+  const float beta = 0.5;
 
   // 加速度を積分して速度を算出    
   // ここでもLPFをかける
@@ -93,8 +95,9 @@ void Gyro::update() {
 
   // 角速度を積分して角度を算出
   angle_ = angle_ + (gyro_.x * interval * 0.001);
-  // Serial.printf(">angle:%f\n", (float)angle_);
-  // Serial.printf(">gyro:%f\n", (float)gyro_.x);
+  Serial.printf(">angle:%f\n", (float)angle_);
+  Serial.printf(">drift:%f\n", (float)drift_.x);
+  Serial.printf(">gyro_filtered:%f\n", (float)gyro_.x);
 }
 
 xyz_t Gyro::acc() {
