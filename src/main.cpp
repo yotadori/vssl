@@ -174,5 +174,5 @@ void loop() {
   // ジョイスティックの値をもとに、ロボットの速度を設定
   robo.set_target_vel({(float)(RemoteXY.joystick_01_y * 3.0),
                        (float)(RemoteXY.joystick_01_x * -3.0),
-                       (float)(RemoteXY.joystick_02_x * -0.06)});
+                       (float)(RemoteXY.joystick_02_x * -0.04)});
 }
