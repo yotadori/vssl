@@ -110,9 +110,10 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 float cycle = 10;
 
 // 割り込み処理
-void timer1Task() {
-  speaker.update(); 
-  gyro.update(); 
+void timer1Task()
+{
+  speaker.update();
+  gyro.update();
   robo.execute(cycle);
 }
 
@@ -142,25 +143,24 @@ void setup() {
   speaker.stop();
   delay(200);
 
-  // 割り込み開始
-  timer1.begin(timer1Task, cycle);
-
   // 1秒待つ
   delay(1000); 
+
+  // 割り込み開始
+  timer1.begin(timer1Task, cycle);
 
   // いいかんじのメロディーを鳴らす
   Speaker::tone_type start_melody[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
   speaker.set_melody(start_melody);
+ 
 }
 
 void loop() {
-
   // RemoteXYを更新
   RemoteXY_Handler();
 
   if (RemoteXY.button_01)
   {
-
     // ボタンが押されたら
 
     // 音を鳴らす
@@ -170,6 +170,7 @@ void loop() {
     // キック
     robo.kick();
   }
+
   // ジョイスティックの値をもとに、ロボットの速度を設定
   robo.set_target_vel({(float)(RemoteXY.joystick_01_y * 3.0),
                        (float)(RemoteXY.joystick_01_x * -3.0),
