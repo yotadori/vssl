@@ -12,8 +12,8 @@
 // ロボットの状態を管理するクラス
 class Robo {
     public:
-        // ロボットの半径(mm)
-        constexpr static float RADIUS = 40;
+        // ロボットの半径（タイヤ部分）(mm)
+        constexpr static float RADIUS = 30;
         // 最大速度(mm/s)
         constexpr static float MAX_SPEED = 420;
         // 最大角速度(rad/s)
