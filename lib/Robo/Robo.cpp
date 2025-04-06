@@ -62,12 +62,14 @@ void Robo::execute(float cycle) {
   // 微分
   float angle_diff = (angle_error - angle_error_) / cycle;
 
+  /*
   Serial.printf(">angle_error:%f\n", (float)angle_error);
   Serial.printf(">error_integ:%f\n", (float)angle_integral_);
   Serial.printf(">error_diff:%f\n", (float)angle_diff);
+  */
 
   // 角速度に角度をフィードバック（PID）
-  const float k_p = 10;
+  const float k_p = 8;
   const float k_i = 0.01;
   const float k_d = 0.002;
   out_vel.z = k_p * angle_error + k_i * angle_integral_ + k_d * angle_diff;

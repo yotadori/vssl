@@ -50,7 +50,7 @@ void Gyro::update() {
   acc_.z = AcZ / 65536.0 * 4.0 * 9800;
   tmp_ = Tmp/340.00+36.53;
   //gyro_.x = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
-  gyro_.x = GyX * 0.0000009; // 角度がずれる(180度がでない)場合はここを調整する
+  gyro_.x = GyX * 0.00000051; // 角度がずれる(180度がでない)場合はここを調整する
 
   // alpha is calculated as t / (t + dT)
   // with t, the low-pass filter's time-constant
@@ -73,8 +73,6 @@ void Gyro::update() {
     // ジャイロのドリフト成分を計算する
     drift_.x = alpha * drift_.x + (1 - alpha) * gyro_.x;
   }
-
-  Serial.printf(">gyro:%f\n", (float)gyro_.x);
 
   // ドリフト成分除去
   gyro_.x = gyro_.x - drift_.x;

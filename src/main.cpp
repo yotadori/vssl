@@ -130,9 +130,6 @@ void setup() {
   robo.setup(); 
   robo.stop();
 
-  Serial.begin(115200);
-  Serial.println("hello from tiny soccer robot");
-
   // 起動時の音
   speaker.beep(5);
   delay(200);
@@ -145,6 +142,9 @@ void setup() {
 
   // 1秒待つ
   delay(1000); 
+
+  Serial.begin(115200);
+  Serial.println("hello from tiny soccer robot");
 
   // 割り込み開始
   timer1.begin(timer1Task, cycle);
@@ -174,5 +174,5 @@ void loop() {
   // ジョイスティックの値をもとに、ロボットの速度を設定
   robo.set_target_vel({(float)(RemoteXY.joystick_01_y * 3.0),
                        (float)(RemoteXY.joystick_01_x * -3.0),
-                       (float)(RemoteXY.joystick_02_x * -0.03)});
+                       (float)(RemoteXY.joystick_02_x * -0.06)});
 }
