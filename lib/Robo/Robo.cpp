@@ -57,6 +57,8 @@ void Robo::execute(float cycle) {
 
   // 積分
   angle_integral_ += (angle_error + angle_error_) / 2 * cycle;
+  // 値が大きくなりすぎないように
+  angle_integral_ = clamp(angle_integral_, 100);
   // 微分
   float angle_diff = (angle_error - angle_error_) / cycle;
 
