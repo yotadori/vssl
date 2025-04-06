@@ -14,6 +14,10 @@ class Robo {
     public:
         // ロボットの半径(mm)
         constexpr static float RADIUS = 40;
+        // 最大速度(mm/s)
+        constexpr static float MAX_SPEED = 420;
+        // 最大角速度(rad/s)
+        constexpr static float MAX_OMEGA = 5;
 
         /**
          * @brief コンストラクタ
@@ -46,6 +50,19 @@ class Robo {
          */
         void stop();
 
+        /**
+         * @brief 指定した距離だけ移動
+         * @param x ロボット正面方向(mm)
+         * @param y ロボット左手方向(mm)
+         */
+        void move_mm(float x, float y);
+
+        /**
+         * @brief 指定した角度だけ回転
+         * @param deg 角度（度）
+         */
+        void turn_degree(float deg);
+
         //// 以下 setter ////
         
         /**
@@ -57,6 +74,18 @@ class Robo {
          * @brief 目標角度を設定
          */
         void set_target_angle(float angle);
+
+        /**
+         * @brief move_mm用の速さを設定
+         * @param speed 速さ(mm)
+         */
+        void set_default_speed(float speed);
+
+        /**
+         * @brief turn_deg用の速さを設定
+         * @param omega 角速度(rad/s)
+         */
+        void set_default_omega(float omega);
 
     private:
         xyz_t target_vel_; // 目標速度
@@ -79,6 +108,10 @@ class Robo {
 
         bool kicking_; // キック動作中か
         unsigned int kick_count_;
+
+        // move_mm用スピード
+        float default_speed_;
+        float default_omega_;
 };
 
 #endif // ROBO_H

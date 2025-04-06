@@ -76,20 +76,20 @@ Dabble_Receiver receiver = Dabble_Receiver();
 UART_Receiver receiver = UART_Receiver();
 */
 
-/*
 constexpr int SERVO_PIN = D7;
 constexpr int ROT_PIN_1 = D10;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D6;
-*/
 
+/*
 // AI module adapted circuit
 constexpr int SERVO_PIN = D10;
 constexpr int ROT_PIN_1 = D1;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D0;
+*/
 
 Servo servo0 = Servo(0, SERVO_PIN);
 Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
@@ -141,7 +141,7 @@ void setup() {
 
   // 割り込み
   timer1.begin(timer1Task, cycle);
-  delay(1000);
+  delay(1000); 
 }
 
 // 目標角度
@@ -150,17 +150,6 @@ static float target_angle = 0;
 static unsigned long loop_time = millis();
 
 void loop() {
-  robo.set_target_vel({80, 0, 0});
-  /*
-  sleep(2);
-  robo.set_target_angle(-0.5 * PI);
-  sleep(2);
-  robo.set_target_angle(-1.0 * PI);
-  sleep(2);
-  robo.set_target_angle(-1.5 * PI);
-  sleep(2);
-  robo.set_target_angle(-2.0 * PI);
-  */
 
   // put your main code here, to run repeatedly:
   constexpr unsigned long lost_time = 1000.0; // 通信が途切れてからロスト判定するまでの時間
