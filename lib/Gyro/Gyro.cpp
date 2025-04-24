@@ -45,28 +45,27 @@ void Gyro::update() {
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
 
   // 単位変換 mm*s-2, ℃, rad*s-1
-  xyz_t acc;
-  acc.x = AcX / 65536.0 * 4.0 * 9800;
-  acc.y = AcY / 65536.0 * 4.0 * 9800;
-  acc.z = AcZ / 65536.0 * 4.0 * 9800;
+  acc_.x = AcX / 65536.0 * 4.0 * 9800;
+  acc_.y = AcY / 65536.0 * 4.0 * 9800;
+  acc_.z = AcZ / 65536.0 * 4.0 * 9800;
   tmp_ = Tmp/340.00+36.53;
   //gyro_.x = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
-  gyro_.x = GyX * 0.0000009026;
+  gyro_.x = GyX * 0.00000051; // 角度がずれる(180度がでない)場合はここを調整する
 
   // alpha is calculated as t / (t + dT)
   // with t, the low-pass filter's time-constant
   // and dT, the event delivery rate
-  const float alpha = 0.99;
+  const float alpha = 0.999;
 
   // 重力成分
-  gravity_.x = alpha * gravity_.x + (1 - alpha) * acc.x;
-  gravity_.y = alpha * gravity_.y + (1 - alpha) * acc.y;
-  gravity_.z = alpha * gravity_.z + (1 - alpha) * acc.z;
+  gravity_.x = alpha * gravity_.x + (1 - alpha) * acc_.x;
+  gravity_.y = alpha * gravity_.y + (1 - alpha) * acc_.y;
+  gravity_.z = alpha * gravity_.z + (1 - alpha) * acc_.z;
 
   // 重力成分除去
-  acc_.x = acc.x - gravity_.x;
-  acc_.y = acc.y - gravity_.y;
-  acc_.z = acc.z - gravity_.z;
+  acc_filtered_.x = acc_.x - gravity_.x;
+  acc_filtered_.y = acc_.y - gravity_.y;
+  acc_filtered_.z = acc_.z - gravity_.z;
 
   if (abs(gyro_.x) < 0.001)
   {
@@ -83,7 +82,7 @@ void Gyro::update() {
   static float interval = millis() - preInterval;
   preInterval = millis();
 
-  const float beta = 0.99;
+  const float beta = 0.5;
 
   // 加速度を積分して速度を算出    
   // ここでもLPFをかける
@@ -93,12 +92,23 @@ void Gyro::update() {
 
   // 角速度を積分して角度を算出
   angle_ = angle_ + (gyro_.x * interval * 0.001);
+  /*
   Serial.printf(">angle:%f\n", (float)angle_);
-  Serial.printf(">gyro:%f\n", (float)gyro_.x);
+  Serial.printf(">drift:%f\n", (float)drift_.x);
+  Serial.printf(">gyro_filtered:%f\n", (float)gyro_.x);
+  Serial.printf(">accX:%f\n", (float)acc_.x);
+  Serial.printf(">accY:%f\n", (float)acc_.y);
+  Serial.printf(">accZ:%f\n", (float)acc_.z);
+  Serial.printf(">tmp:%f\n", (float)tmp_);
+  */
 }
 
 xyz_t Gyro::acc() {
     return acc_;
+}
+
+xyz_t Gyro::acc_filtered() {
+    return acc_filtered_;
 }
 
 xyz_t Gyro::gyro() {

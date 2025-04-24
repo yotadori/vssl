@@ -4,36 +4,114 @@
 
 #include "Context.h"
 #include "Arduino.h"
+#include "Rot_Servo.h"
+#include "Servo.h"
+#include "Speaker.h"
+#include "Gyro.h"
 
 // ロボットの状態を管理するクラス
 class Robo {
     public:
-        // ロボットの半径(mm)
-        constexpr static float RADIUS = 40;
+        // ロボットの半径（タイヤ部分）(mm)
+        constexpr static float RADIUS = 30;
+        // 最大速度(mm/s)
+        constexpr static float MAX_SPEED = 420;
+        // 最大角速度(rad/s)
+        constexpr static float MAX_OMEGA = 5;
 
         /**
          * @brief コンストラクタ
+         * @param rot1 モーター1
+         * @param rot2 モーター2
+         * @param rot3 モーター3
+         * @param servo キック用サーボモーター
+         * @param gyro ジャイロ
         */
-        Robo();
+        Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro& gyro);
 
         /**
-         * @brief 値を更新
-         * @param 推定速度
-        */
-        void update(xyz_t vel);
+         * @brief setup （setupで呼ぶ）
+         */
+        void setup();
 
         /**
-         * @brief 制御値を更新
-         * @param 目標速度
-         * @return 出力速度
+         * @brief 制御値を更新（一定周期で呼ぶこと）
+         * @param cycle 周期
         */
-        xyz_t execute(xyz_t target_vel);
+        void execute(float cycle);
+
+        /**
+         * @brief キック
+         */
+        void kick();
+
+        /**
+         * @brief 足回りのモーターをすべて停止
+         */
+        void stop();
+
+        /**
+         * @brief 指定した距離だけ移動
+         * @param x ロボット正面方向(mm)
+         * @param y ロボット左手方向(mm)
+         */
+        void move_mm(float x, float y);
+
+        /**
+         * @brief 指定した角度だけ回転
+         * @param deg 角度（度）
+         */
+        void turn_degree(float deg);
+
+        //// 以下 setter ////
+        
+        /**
+         * @brief 目標速度を設定
+         */
+        void set_target_vel(xyz_t target_vel);
+
+        /**
+         * @brief 目標角度を設定
+         */
+        void set_target_angle(float angle);
+
+        /**
+         * @brief move_mm用の速さを設定
+         * @param speed 速さ(mm)
+         */
+        void set_default_speed(float speed);
+
+        /**
+         * @brief turn_deg用の速さを設定
+         * @param omega 角速度(rad/s)
+         */
+        void set_default_omega(float omega);
 
     private:
+        xyz_t target_vel_; // 目標速度
+        float target_angle_; // 目標角度
+        float angle_error_; // 角度の誤差
+        float angle_integral_; // 角度の誤差の積分
+
         xyz_t vel_; // 推定速度 (x, y, angular)
-        xyz_t out_vel_; // 出力速度 (x, y, angular)
-        xyz_t error_;
-        xyz_t integral_;
+
+        // モーター
+        Rot_Servo& rot1_;
+        Rot_Servo& rot2_;
+        Rot_Servo& rot3_;
+
+        // キック用モーター
+        Servo& servo_;
+
+        // ジャイロ
+        Gyro& gyro_;
+
+        bool kicking_; // キック動作中か
+        unsigned int kick_count_;
+
+        // move_mm用スピード
+        float default_speed_;
+        float default_omega_;
 };
 
 #endif // ROBO_H

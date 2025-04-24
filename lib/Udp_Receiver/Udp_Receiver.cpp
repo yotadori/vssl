@@ -2,7 +2,7 @@
 
 #include "Udp_Receiver.h"
 
-Udp_Receiver::Udp_Receiver(char* ssid, char* password) : ssid_{ssid}, password_{password}, udp_{}, last_updated_time_(0) {}
+Udp_Receiver::Udp_Receiver(char *ssid, char *password) : Receiver(), ssid_{ssid}, password_{password}, udp_{} {}
 
 void Udp_Receiver::setup() {
     Serial.begin(115200);
@@ -47,7 +47,7 @@ void Udp_Receiver::setup() {
             const unsigned int id = 0;
             if ((data[0] & 0b1111) == id + 1) {
                 // 自分のidだったら値を更新
-                update(data); 
+                update_data(data); 
             }
         });
         //Send multicast
@@ -55,15 +55,7 @@ void Udp_Receiver::setup() {
     }
 }
 
-xyz_t Udp_Receiver::vel() {
-    return vel_;
-} 
-
-bool Udp_Receiver::kick_flag() {
-    return kick_flag_;
-}
-
-void Udp_Receiver::update(uint8_t* data) {
+void Udp_Receiver::update_data(uint8_t* data) {
     // 時刻を取得
     this->last_updated_time_ = millis();
 
@@ -72,7 +64,7 @@ void Udp_Receiver::update(uint8_t* data) {
 
     // 速度指令にかける倍率
     static constexpr float linear_coef = 0.2;
-    static constexpr float angular_coef = 0.4;
+    static constexpr float angular_coef = 1.0;
 
     // mm/s, mm/s, rad/s
     vel_.y =
@@ -97,8 +89,4 @@ void Udp_Receiver::update(uint8_t* data) {
         }
     }
 
-}
-
-float Udp_Receiver::updated_time() {
-    return last_updated_time_;
 }
