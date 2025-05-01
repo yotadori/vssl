@@ -88,6 +88,8 @@ constexpr int ROT_PIN_1 = D1;
 constexpr int ROT_PIN_2 = D2;
 constexpr int ROT_PIN_3 = D3;
 constexpr int SPEAKER_PIN = D0;
+constexpr int US_TRIG_PIN = D6;
+constexpr int US_ECHO_PIN = D7;
 
 // サーボモーター（キック用モーター）
 Servo servo0 = Servo(0, SERVO_PIN);
@@ -152,7 +154,7 @@ void setup() {
   // いいかんじのメロディーを鳴らす
   Speaker::tone_type start_melody[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
   speaker.set_melody(start_melody);
- 
+
 }
 
 void loop() {
