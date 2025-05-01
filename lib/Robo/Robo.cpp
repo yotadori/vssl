@@ -125,6 +125,7 @@ void Robo::stop() {
 }
 
 void Robo::move_mm(float x, float y) {
+  target_vel_.z = 0;
   float distance = sqrt(x * x + y * y);
   target_vel_.x = default_speed_ * x / distance;
   target_vel_.y = default_speed_ * y / distance;
