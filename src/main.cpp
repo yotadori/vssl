@@ -10,23 +10,6 @@
 #include "UltrasonicSensor.h"
 
 /*
-char* ssid = "F660A-xRb9-G";
-char* password = "x9eyusp7";
-#include "Udp_Receiver.h"
-Udp_Receiver receiver = Udp_Receiver(ssid, password);
-*/
-
-/*
-#include "Dabble_Receiver.h"
-Dabble_Receiver receiver = Dabble_Receiver();
-*/
-
-/*
-#include "UART_Receiver.h"
-UART_Receiver receiver = UART_Receiver();
-*/
-
-/*
 constexpr int SERVO_PIN = D7;
 constexpr int ROT_PIN_1 = D10;
 constexpr int ROT_PIN_2 = D2;
@@ -59,7 +42,6 @@ Robo robo = Robo(rot1, rot2, rot3, servo0, gyro);
 // スピーカー
 Speaker speaker = Speaker(4, SPEAKER_PIN);
 
-
 // 割り込みの周期
 float cycle = 1;
 
@@ -75,25 +57,6 @@ void timer1Task()
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
 
 void setup() {
-  // RemoteXY初期化
-  RemoteXY_Init();
-
-  // put your setup code here, to run once:
-
-  // ロボット初期化
-  robo.setup(); 
-  robo.stop();
-
-  // 起動時の音
-  speaker.beep(5);
-  delay(200);
-  speaker.beep(1);
-  delay(200);
-  speaker.beep(5);
-  delay(200);
-  speaker.stop();
-  delay(200);
-
   // 1秒待つ
   delay(1000); 
 
@@ -103,30 +66,8 @@ void setup() {
   // 割り込み開始
   timer1.begin(timer1Task, cycle);
 
-  // いいかんじのメロディーを鳴らす
-  Speaker::tone_type start_melody[]{{5, 50}, {4, 50}, {5, 50}, {0, 50}, {5, 50}, {4, 50}, {5, 50}, {0, 50}, {Speaker::STOP, 20}};
-  speaker.set_melody(start_melody);
-
 }
 
 void loop() {
-  // RemoteXYを更新
-  RemoteXY_Handler();
 
-  if (RemoteXY.button_01)
-  {
-    // ボタンが押されたら
-
-    // 音を鳴らす
-    static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
-    speaker.set_melody(kick_sound);
-
-    // キック
-    robo.kick();
-  }
-
-  // ジョイスティックの値をもとに、ロボットの速度を設定
-  robo.set_target_vel({(float)(RemoteXY.joystick_01_y * 3.0),
-                       (float)(RemoteXY.joystick_01_x * -3.0),
-                       (float)(RemoteXY.joystick_02_x * -0.04)});
 }
