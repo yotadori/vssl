@@ -48,6 +48,8 @@ void Gyro::update() {
   tmp_ = Tmp/340.00+36.53;
   //gyro_.x = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
   gyro_.x = GyX * 0.000133154; // 角度がずれる(180度がでない)場合はここを調整する
+  gyro_.y = GyY * 0.000133154;
+  gyro_.z = GyZ * 0.000133154;
 
   // alpha is calculated as t / (t + dT)
   // with t, the low-pass filter's time-constant

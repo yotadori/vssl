@@ -14,7 +14,8 @@ Robo::Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro
     kicking_(false),
     kick_count_(0),
     default_speed_(100),
-    use_gyro_(true)
+    default_omega_(3),
+    use_gyro_(false)
 {}
 
 void Robo::setup() {
@@ -104,6 +105,7 @@ void Robo::kick()
 }
 
 void Robo::stop() {
+  target_vel_ = {0, 0, 0};
   servo_.stop();
   rot1_.stop();
   rot2_.stop();
@@ -131,8 +133,16 @@ void Robo::set_target_vel(xyz_t target_vel) {
   target_vel_ = target_vel;
 }
 
+void Robo::set_target_vel(float vx, float vy, float omega) {
+  target_vel_ = xyz_t{vx, vy, omega};
+}
+
 void Robo::set_default_speed(float speed) {
   default_speed_ = min(speed, Robo::MAX_SPEED);
+}
+
+void Robo::set_default_omega(float omega) {
+  default_omega_ = omega;
 }
 
 void Robo::set_use_gyro(boolean flag) {

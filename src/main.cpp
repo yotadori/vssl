@@ -5,6 +5,8 @@
 #include "Robo.h"
 #include "Speaker.h"
 #include "Gyro.h"
+#include "UltrasonicSensor.h"
+#include "RemoteXY_Header.h"
 
 /*
 constexpr int SERVO_PIN = D7;
@@ -15,6 +17,7 @@ constexpr int SPEAKER_PIN = D6;
 */
 
 // AI module adapted circuit
+// ピン番号の設定
 constexpr int SERVO_PIN = D10;
 constexpr int ROT_PIN_1 = D1;
 constexpr int ROT_PIN_2 = D2;
@@ -50,9 +53,9 @@ void timer1Task() {
 // 割り込み用タイマー
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
 
-void setup() {
-  
-}
+  void setup() {
+
+  }  
 
 void loop() {
   

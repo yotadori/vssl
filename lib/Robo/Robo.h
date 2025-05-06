@@ -71,6 +71,14 @@ class Robo {
         void set_target_vel(xyz_t target_vel);
 
         /**
+         * @brief 目標速度を設定
+         * @param vx ロボット前方向の速度(mm/s)
+         * @param vy ロボット左方向の速度(mm/s)
+         * @param vz 角速度(rad/s)
+         */
+        void set_target_vel(float vx, float vy, float omega);
+
+        /**
          * @brief move_mm用の速さを設定
          * @param speed 速さ(mm)
          */
