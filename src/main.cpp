@@ -43,20 +43,17 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 float cycle = 1;
 
 // 割り込み処理
-void timer1Task()
-{
-  speaker.update();
-  gyro.update();
-  robo.execute(cycle);
+void timer1Task() {
+
 }
 
 // 割り込み用タイマー
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
 
 void setup() {
-
+  
 }
 
 void loop() {
-
+  
 }
