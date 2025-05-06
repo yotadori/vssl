@@ -3,9 +3,8 @@
 Robo::Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro& gyro)
    :
     target_vel_{0},
-    target_angle_(0),
-    angle_error_(0),
-    angle_integral_(0),
+    last_omega_error_(0),
+    omega_error_integral_(0),
     vel_{0},
     rot1_{rot1},
     rot2_{rot2},
@@ -14,8 +13,7 @@ Robo::Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro
     gyro_{gyro},
     kicking_(false),
     kick_count_(0),
-    default_speed_(100),
-    default_omega_(2)
+    default_speed_(100)
 {}
 
 void Robo::setup() {
@@ -39,42 +37,26 @@ void Robo::execute(float cycle) {
     return a;
   };
    
-  // 目標角度に目標速度を加える
-  target_angle_ += clamp(target_vel_.z, MAX_OMEGA) * cycle / 1000.0;
-
   // 出力速度
   xyz_t out_vel = target_vel_;
   
-  // 目標角度エラー
-  float angle_error = target_angle_ - gyro_.angle();
-  // +-PIに収める
-  while (angle_error > PI) {
-    angle_error -= 2 * PI;
-  }
-  while (angle_error < -PI) {
-    angle_error += 2 * PI;
-  }
+  // 目標角速度エラー
+  float omega_error = target_vel_.z - gyro_.gyro().x;
 
   // 積分
-  angle_integral_ += (angle_error + angle_error_) / 2 * cycle;
-  // 値が大きくなりすぎないように
-  angle_integral_ = clamp(angle_integral_, 100);
+  omega_error_integral_ += omega_error * cycle;
   // 微分
-  float angle_diff = (angle_error - angle_error_) / cycle;
+  float omega_error_diff = (omega_error - last_omega_error_) / cycle;
 
-  /*
-  Serial.printf(">angle_error:%f\n", (float)angle_error);
-  Serial.printf(">error_integ:%f\n", (float)angle_integral_);
-  Serial.printf(">error_diff:%f\n", (float)angle_diff);
-  */
+  Serial.printf(">omega_error:%f\n", (float)omega_error);
 
-  // 角速度に角度をフィードバック（PID）
-  const float k_p = 8;
-  const float k_i = 0.01;
-  const float k_d = 0.002;
-  out_vel.z = k_p * angle_error + k_i * angle_integral_ + k_d * angle_diff;
+  // 角速度をフィードバック（PID）
+  const float k_p = 0.1;
+  const float k_i = 0.02;
+  const float k_d = 0.01;
+  out_vel.z += k_p * omega_error + k_i * omega_error_integral_ + k_d * omega_error_diff;
 
-  angle_error_ = angle_error;
+  last_omega_error_ = omega_error;
 
   // 速度調整用係数
   constexpr float c = 1.0;
@@ -92,11 +74,11 @@ void Robo::execute(float cycle) {
   // キック動作
   if (kicking_)
   {
-    if (kick_count_ < 17)
+    if (kick_count_ < 170)
     {
       servo_.set_angle(-45);
     }
-    else if (kick_count_ < 22)
+    else if (kick_count_ < 220)
     {
       servo_.set_angle(-90);
     }
@@ -145,14 +127,6 @@ void Robo::set_target_vel(xyz_t target_vel) {
   target_vel_ = target_vel;
 }
 
-void Robo::set_target_angle(float angle) {
-  target_angle_ = angle;
-}
-
 void Robo::set_default_speed(float speed) {
   default_speed_ = min(speed, Robo::MAX_SPEED);
-}
-
-void Robo::set_default_omega(float omega) {
-  default_omega_ = min(omega, Robo::MAX_OMEGA);
 }

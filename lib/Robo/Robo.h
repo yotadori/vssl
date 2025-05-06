@@ -71,11 +71,6 @@ class Robo {
         void set_target_vel(xyz_t target_vel);
 
         /**
-         * @brief 目標角度を設定
-         */
-        void set_target_angle(float angle);
-
-        /**
          * @brief move_mm用の速さを設定
          * @param speed 速さ(mm)
          */
@@ -89,9 +84,8 @@ class Robo {
 
     private:
         xyz_t target_vel_; // 目標速度
-        float target_angle_; // 目標角度
-        float angle_error_; // 角度の誤差
-        float angle_integral_; // 角度の誤差の積分
+        float last_omega_error_; // 角度の誤差
+        float omega_error_integral_; // 角度の誤差の積分
 
         xyz_t vel_; // 推定速度 (x, y, angular)
 
