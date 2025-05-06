@@ -32,9 +32,15 @@ class Speaker {
 
         /**
         * @brief 音を鳴らす
-        * @param tone 高さ
+        * @param tone 高さ（1:ド, 2:レ, 3:ミ, ...）
         */
         void beep(int tone);
+
+        /**
+         * @brief 周波数を指定して音を鳴らす
+         * @param hz 周波数
+         */
+        void beep_Hz(int hz);
 
         /**
          * @brief 音を止める

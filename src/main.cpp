@@ -6,9 +6,6 @@
 #include "Speaker.h"
 #include "Gyro.h"
 
-#include "RemoteXY_Header.h"
-#include "UltrasonicSensor.h"
-
 /*
 constexpr int SERVO_PIN = D7;
 constexpr int ROT_PIN_1 = D10;
@@ -57,14 +54,6 @@ void timer1Task()
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
 
 void setup() {
-  // 1秒待つ
-  delay(1000); 
-
-  Serial.begin(115200);
-  Serial.println("hello from tiny soccer robot");
-
-  // 割り込み開始
-  timer1.begin(timer1Task, cycle);
 
 }
 

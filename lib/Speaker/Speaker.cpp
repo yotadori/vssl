@@ -3,7 +3,7 @@
 #include "Speaker.h"
 
 Speaker::Speaker (int channel, int pin) :
-channel_(channel), melody_{0}, counter_(0)
+channel_(channel), melody_{0}, counter_(0), playing_(false)
 {
     ledcSetup(channel, 12000, 8);    
     ledcAttachPin(pin, channel);
@@ -11,6 +11,8 @@ channel_(channel), melody_{0}, counter_(0)
 }
 
 void Speaker::update() {
+    if (!playing_) return;
+
     if (melody_[melody_step_].tone == Speaker::STOP) {
         playing_ = false;
         stop();
@@ -31,6 +33,10 @@ void Speaker::beep(int tone) {
     static const int tones[] = {0, 262, 294, 330, 349, 392, 440, 494, 523, 587};
 
     ledcWriteTone(channel_, tones[tone]);
+}
+
+void Speaker::beep_Hz(int hz) {
+    ledcWriteTone(channel_, hz);
 }
 
 void Speaker::stop() {
