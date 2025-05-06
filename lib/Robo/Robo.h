@@ -82,6 +82,12 @@ class Robo {
          */
         void set_default_omega(float omega);
 
+        /**
+         * @brief ジャイロを使うかを設定
+         * @param flag 使うならtrue
+         */
+        void set_use_gyro(boolean flag);
+
     private:
         xyz_t target_vel_; // 目標速度
         float last_omega_error_; // 角度の誤差
@@ -99,6 +105,7 @@ class Robo {
 
         // ジャイロ
         Gyro& gyro_;
+        boolean use_gyro_;
 
         bool kicking_; // キック動作中か
         unsigned int kick_count_;
