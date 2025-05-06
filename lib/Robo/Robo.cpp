@@ -13,7 +13,8 @@ Robo::Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro
     gyro_{gyro},
     kicking_(false),
     kick_count_(0),
-    default_speed_(100)
+    default_speed_(100),
+    use_gyro_(true)
 {}
 
 void Robo::setup() {
@@ -39,24 +40,27 @@ void Robo::execute(float cycle) {
    
   // 出力速度
   xyz_t out_vel = target_vel_;
-  
-  // 目標角速度エラー
-  float omega_error = target_vel_.z - gyro_.gyro().x;
 
-  // 積分
-  omega_error_integral_ += omega_error * cycle;
-  // 微分
-  float omega_error_diff = (omega_error - last_omega_error_) / cycle;
+  if (use_gyro_)
+  {
+    // 目標角速度エラー
+    float omega_error = target_vel_.z - gyro_.gyro().x;
 
-  Serial.printf(">omega_error:%f\n", (float)omega_error);
+    // 積分
+    omega_error_integral_ += omega_error * cycle;
+    // 微分
+    float omega_error_diff = (omega_error - last_omega_error_) / cycle;
 
-  // 角速度をフィードバック（PID）
-  const float k_p = 0.1;
-  const float k_i = 0.02;
-  const float k_d = 0.01;
-  out_vel.z += k_p * omega_error + k_i * omega_error_integral_ + k_d * omega_error_diff;
+    Serial.printf(">omega_error:%f\n", (float)omega_error);
 
-  last_omega_error_ = omega_error;
+    // 角速度をフィードバック（PID）
+    const float k_p = 0.1;
+    const float k_i = 0.02;
+    const float k_d = 0.01;
+    out_vel.z += k_p * omega_error + k_i * omega_error_integral_ + k_d * omega_error_diff;
+
+    last_omega_error_ = omega_error;
+  }
 
   // 速度調整用係数
   constexpr float c = 1.0;
@@ -129,4 +133,8 @@ void Robo::set_target_vel(xyz_t target_vel) {
 
 void Robo::set_default_speed(float speed) {
   default_speed_ = min(speed, Robo::MAX_SPEED);
+}
+
+void Robo::set_use_gyro(boolean flag) {
+  use_gyro_ = flag;
 }
