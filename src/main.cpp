@@ -61,7 +61,7 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 
 
 // 割り込みの周期
-float cycle = 10;
+float cycle = 1;
 
 // 割り込み処理
 void timer1Task()
@@ -104,7 +104,7 @@ void setup() {
   timer1.begin(timer1Task, cycle);
 
   // いいかんじのメロディーを鳴らす
-  Speaker::tone_type start_melody[]{{5, 5}, {4, 5}, {5, 5}, {0, 5}, {5, 5}, {4, 5}, {5, 5}, {0, 5}, {Speaker::STOP, 20}};
+  Speaker::tone_type start_melody[]{{5, 50}, {4, 50}, {5, 50}, {0, 50}, {5, 50}, {4, 50}, {5, 50}, {0, 50}, {Speaker::STOP, 20}};
   speaker.set_melody(start_melody);
 
 }

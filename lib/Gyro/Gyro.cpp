@@ -7,7 +7,7 @@
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
 
 Gyro::Gyro() :
-    acc_{0}, gyro_{0}, drift_{0}, tmp_(0), vel_{0}, angle_(0)
+    acc_{0}, gyro_{0}, drift_{0}, tmp_(0) 
 {}
 
 void Gyro::setup() {
@@ -24,9 +24,6 @@ void Gyro::setup() {
     delay(50);
   }
   */
-  vel_.x = 0;
-  vel_.y = 0;
-  vel_.z = 0;
 }
 
 void Gyro::update() {
@@ -50,7 +47,7 @@ void Gyro::update() {
   acc_.z = AcZ / 65536.0 * 4.0 * 9800;
   tmp_ = Tmp/340.00+36.53;
   //gyro_.x = GyX / 65536.0 * 500.0 / 360.0 * 6.283;
-  gyro_.x = GyX * 0.00000051; // 角度がずれる(180度がでない)場合はここを調整する
+  gyro_.x = GyX * 0.000133154; // 角度がずれる(180度がでない)場合はここを調整する
 
   // alpha is calculated as t / (t + dT)
   // with t, the low-pass filter's time-constant
@@ -67,31 +64,22 @@ void Gyro::update() {
   acc_filtered_.y = acc_.y - gravity_.y;
   acc_filtered_.z = acc_.z - gravity_.z;
 
-  if (abs(gyro_.x) < 0.001)
+  if (abs(gyro_.x) < 0.05)
   {
     // 角速度が小さい時
     // ジャイロのドリフト成分を計算する
     drift_.x = alpha * drift_.x + (1 - alpha) * gyro_.x;
   }
 
+  // Serial.printf(">gyro_filtered:%f\n", (float)gyro_.x);
   // ドリフト成分除去
-  gyro_.x = gyro_.x - drift_.x;
+  gyro_.x -= drift_.x;
 
   // 前回計算した時から今までの経過時間を算出
   static float preInterval = 0.0;
   static float interval = millis() - preInterval;
   preInterval = millis();
 
-  const float beta = 0.5;
-
-  // 加速度を積分して速度を算出    
-  // ここでもLPFをかける
-  vel_.x = beta * vel_.x + (1 - beta) * (vel_.x + acc_.x * interval * 0.001);
-  vel_.y = beta * vel_.y + (1 - beta) * (vel_.y + acc_.y * interval * 0.001);
-  vel_.z = beta * vel_.z + (1 - beta) * (vel_.z + acc_.z * interval * 0.001);
-
-  // 角速度を積分して角度を算出
-  angle_ = angle_ + (gyro_.x * interval * 0.001);
   /*
   Serial.printf(">angle:%f\n", (float)angle_);
   Serial.printf(">drift:%f\n", (float)drift_.x);
@@ -113,13 +101,4 @@ xyz_t Gyro::acc_filtered() {
 
 xyz_t Gyro::gyro() {
     return gyro_;
-}
-
-xyz_t Gyro::vel() {
-    return vel_;
-}
-
-float Gyro::angle()
-{
-  return angle_;
 }
