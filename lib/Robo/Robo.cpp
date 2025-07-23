@@ -19,7 +19,7 @@ Robo::Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro
 {}
 
 void Robo::setup() {
-  servo_.set_angle(-90);
+  servo_.set_angle(90);
   delay(500);
   servo_.stop();
   rot1_.set_speed(0);
@@ -45,14 +45,14 @@ void Robo::execute(float cycle) {
   if (use_gyro_)
   {
     // 目標角速度エラー
-    float omega_error = target_vel_.z - gyro_.gyro().x;
+    float omega_error = target_vel_.z - (-gyro_.gyro().z);
 
     // 積分
     omega_error_integral_ += omega_error * cycle;
     // 微分
     float omega_error_diff = (omega_error - last_omega_error_) / cycle;
 
-    Serial.printf(">omega_error:%f\n", (float)omega_error);
+    //Serial.printf(">omega_error:%f\n", (float)omega_error);
 
     // 角速度をフィードバック（PID）
     const float k_p = 0.1;
@@ -73,7 +73,7 @@ void Robo::execute(float cycle) {
 
   // サーボへの出力に変換
   rot1_.set_speed((0.866 * out_vel.x + 0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / Robo::MAX_SPEED);
-  rot2_.set_speed((0.000 * out_vel.x - 1.000 * out_vel.y + Robo::RADIUS * out_vel.z) / Robo::MAX_SPEED);
+  rot2_.set_speed(-(0.000 * out_vel.x - 1.000 * out_vel.y + Robo::RADIUS * out_vel.z) / Robo::MAX_SPEED);
   rot3_.set_speed((-0.866 * out_vel.x + 0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / Robo::MAX_SPEED);
 
   // キック動作
@@ -81,11 +81,11 @@ void Robo::execute(float cycle) {
   {
     if (kick_count_ < 170)
     {
-      servo_.set_angle(-45);
+      servo_.set_angle(45);
     }
     else if (kick_count_ < 220)
     {
-      servo_.set_angle(-90);
+      servo_.set_angle(90);
     }
     else
     {

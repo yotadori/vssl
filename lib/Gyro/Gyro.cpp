@@ -66,16 +66,16 @@ void Gyro::update() {
   acc_filtered_.y = acc_.y - gravity_.y;
   acc_filtered_.z = acc_.z - gravity_.z;
 
-  if (abs(gyro_.x) < 0.05)
+  if (abs(gyro_.z) < 0.05)
   {
     // 角速度が小さい時
     // ジャイロのドリフト成分を計算する
-    drift_.x = alpha * drift_.x + (1 - alpha) * gyro_.x;
+    drift_.z = alpha * drift_.z + (1 - alpha) * gyro_.z;
   }
 
   // Serial.printf(">gyro_filtered:%f\n", (float)gyro_.x);
   // ドリフト成分除去
-  gyro_.x -= drift_.x;
+  gyro_.z -= drift_.z;
 
   // 前回計算した時から今までの経過時間を算出
   static float preInterval = 0.0;
