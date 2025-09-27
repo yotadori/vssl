@@ -79,13 +79,19 @@ void Robo::execute(float cycle) {
   // キック動作
   if (kicking_)
   {
-    if (kick_count_ < 170)
+    if (kick_count_ < 200)
     {
-      servo_.set_angle(45);
+      // 打つ
+      servo_.set_angle(70);
     }
-    else if (kick_count_ < 220)
-    {
-      servo_.set_angle(90);
+    else if (kick_count_ < 600) {
+      // ひっかける
+      servo_.set_angle(-70);
+    }
+    else if (kick_count_ < 800) {
+      // 戻す
+      servo_.set_angle(-60 + (30 + 60) * (kick_count_ - 600) / 200);
+      //servo_.set_angle(30);
     }
     else
     {

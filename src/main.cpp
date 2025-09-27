@@ -91,6 +91,9 @@ void setup() {
   timer1.begin(timer1Task, cycle); // 割り込み
 
   Serial1.begin(115200, SERIAL_8N1, D7, D6);
+
+  // 一度キック動作をはさんで、キッカーを引き戻す
+  robo.kick();
 }  
 
 void loop() {
