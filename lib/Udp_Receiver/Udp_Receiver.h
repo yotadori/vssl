@@ -17,11 +17,16 @@ class Udp_Receiver : public Receiver {
 
         void setup() override;
 
+        void update() override;
+
     private:
         char * ssid_;
         char * password_;
 
         AsyncUDP udp_;
+
+        // last kick_flag time
+        int kick_flag_time_;
 
         /**
          * @brief 値を更新

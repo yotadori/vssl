@@ -2,7 +2,7 @@
 
 #include "Udp_Receiver.h"
 
-Udp_Receiver::Udp_Receiver(char *ssid, char *password) : Receiver(), ssid_{ssid}, password_{password}, udp_{} {}
+Udp_Receiver::Udp_Receiver(char *ssid, char *password) : Receiver(), ssid_{ssid}, password_{password}, udp_{}, kick_flag_time_(0) {}
 
 void Udp_Receiver::setup() {
     Serial.begin(115200);
@@ -40,7 +40,7 @@ void Udp_Receiver::setup() {
             Serial.println();
             */
             //reply to the client
-            packet.printf("Got %u bytes of data", packet.length());
+            //packet.printf("Got %u bytes of data", packet.length());
 
             if (packet.length() < 11) return;
             uint8_t *data = packet.data();
@@ -51,7 +51,14 @@ void Udp_Receiver::setup() {
             }
         });
         //Send multicast
-        udp_.print("Hello!");
+        //udp_.print("Hello!");
+    }
+}
+
+void Udp_Receiver::update() {
+    // hold kick_flag for 300ms
+    if (millis() > kick_flag_time_ + 300) {
+        kick_flag_ = false;
     }
 }
 
@@ -63,7 +70,7 @@ void Udp_Receiver::update_data(uint8_t* data) {
     const auto direction = data[3] << 8 | data[4];
 
     // 速度指令にかける倍率
-    static constexpr float linear_coef = 0.2;
+    static constexpr float linear_coef = 1.0;
     static constexpr float angular_coef = 1.0;
 
     // mm/s, mm/s, rad/s
@@ -74,11 +81,11 @@ void Udp_Receiver::update_data(uint8_t* data) {
     vel_.z = angular_coef * ((data[0] & 0x80) == 0 ? 1 : -1) *
                                     (data[5] << 8 | data[6]) / 1000.0;
 
-    const auto dribble = data[7] & 0x0f;
+    dribble_pow_ = (int)data[7] - 3;
 
-    kick_flag_ = false;
     if((data[0] >> 5) & 0x01) {
         kick_flag_ = true;
+        this->kick_flag_time_ = millis();
         if((0x01 & (data[0] >> 4)) == 1) {
             // line
             const auto line = true;
