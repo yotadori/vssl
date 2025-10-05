@@ -16,11 +16,14 @@ class Receiver {
 
         bool kick_flag();
 
+        int dribble_pow();
+
         float updated_time();
 
     protected:
         xyz_t vel_;
         bool kick_flag_;        
+        int dribble_pow_;
         unsigned long last_updated_time_;
 };
 
