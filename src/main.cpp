@@ -6,7 +6,8 @@
 #include "Speaker.h"
 #include "Gyro.h"
 #include "UltrasonicSensor.h"
-#include "RemoteXY_Header.h"
+//#include "RemoteXY_Header.h"
+#include "Udp_Receiver.h"
 
 /*
 constexpr int SERVO_PIN = D7;
@@ -47,16 +48,46 @@ float cycle = 1;
 
 // 割り込み処理
 void timer1Task() {
-
+  speaker.update();
+  gyro.update();
+  robo.execute(cycle);
 }
+
+Udp_Receiver udp_receiver = Udp_Receiver("yota-HP-OmniBook","yotakunhappy");
 
 // 割り込み用タイマー
 EspEasyTimer timer1(TIMER_GROUP_0, TIMER_0);
 
-  void setup() {
+void setup(){
+  Serial.begin(115200);
 
-  }  
+  // 各種初期化
+  gyro.setup();
+  robo.setup();
+  robo.stop();
+  udp_receiver.setup();
+
+  // 割り込み設定
+  timer1.begin(timer1Task, cycle);
+
+  // いいかんじのメロディーを鳴らす
+  Speaker::tone_type start_melody[]{{5, 50}, {4, 50}, {5, 50}, {0, 50}, {5, 50}, {4, 50}, {5, 50}, {0, 50}, {Speaker::STOP, 20}};
+  speaker.set_melody(start_melody);
+
+}
 
 void loop() {
+  udp_receiver.update();
+
+  udp_receiver.updated_time();
+
+  robo.set_target_vel(udp_receiver.vel());
+  if (udp_receiver.kick_flag()) {
+    // 音を鳴らす
+    static Speaker::tone_type kick_sound[]{{3, 30}, {4, 10}, {Speaker::STOP, 0}};
+    speaker.set_melody(kick_sound);
+    robo.kick();
+  }
   
+  delay(10);
 }
