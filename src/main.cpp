@@ -44,6 +44,12 @@ Speaker speaker = Speaker(4, SPEAKER_PIN);
 
 Udp_Receiver udp_receiver = Udp_Receiver("yota-HP-OmniBook", "yotakunhappy");
 
+// ボールセンサ
+bool is_ball_on = false;
+
+// PICスイッチ
+bool is_switch_on = false;
+
 // 割り込みの周期
 float cycle = 1;
 
@@ -96,16 +102,24 @@ void loop() {
 
   udp_receiver.update();
   robo.set_target_vel(udp_receiver.vel());
-  if (udp_receiver.kick_flag()) {
-    robo.kick();
+  if (udp_receiver.kick_flag() || is_switch_on) {
+    // キックフラグが立っていて、ボールセンサがオンのときキック
+    if (is_ball_on) {
+      robo.kick();
+    }
   }
   Serial1.printf("%c", '0' + udp_receiver.dribble_pow());
+
+  Serial.printf("Ball: %d, Switch: %d\n", is_ball_on ? 1 : 0, is_switch_on ? 1 : 0);
 
   if (Serial.available() > 0) {
     String input = Serial.readString();
     Serial1.printf("%s", input.c_str());
   }
   if (Serial1.available() > 0) {
-    Serial.printf("%s", Serial1.readString().c_str());
+    // PICからのデータを読む
+    int data = Serial1.read();
+    is_ball_on = (data & 0x01) == 0;
+    is_switch_on = (data & 0x02) == 0;
   }
 }
