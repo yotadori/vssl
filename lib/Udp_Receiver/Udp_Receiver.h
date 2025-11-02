@@ -19,6 +19,8 @@ class Udp_Receiver : public Receiver {
 
         void update() override;
 
+        bool isConnected();
+
     private:
         char * ssid_;
         char * password_;

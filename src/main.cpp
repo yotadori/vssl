@@ -107,8 +107,24 @@ void setup() {
   // 接続
   udp_receiver.setup();
 
-  // 接続完了したら音を止める
-  speaker.stop_melody();
+  if (udp_receiver.isConnected()) {
+    // connection success
+    Speaker::tone_type melody[] = {
+        {5, 200},
+        {6, 200},
+        {7, 200},
+        {Speaker::STOP, 0}};
+    speaker.set_melody(melody);
+  } else {
+    // connection fail
+    Speaker::tone_type melody[] = {
+        {5, 200},
+        {1, 200},
+        {1, 200},
+        {Speaker::STOP, 0}};
+    speaker.set_melody(melody);
+  }
+
 }  
 
 // 前回のキックフラグの状態

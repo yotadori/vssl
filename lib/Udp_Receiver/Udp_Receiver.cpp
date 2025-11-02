@@ -10,9 +10,6 @@ void Udp_Receiver::setup() {
     WiFi.begin(ssid_, password_);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
         Serial.println("WiFi Failed");
-        while(1) {
-            delay(1000);
-        }
     }
 
     // address 224.4.34.4
@@ -60,6 +57,10 @@ void Udp_Receiver::update() {
     if (millis() > kick_flag_time_ + 300) {
         kick_flag_ = false;
     }
+}
+
+bool Udp_Receiver::isConnected() {
+    return (WiFi.isConnected());
 }
 
 void Udp_Receiver::update_data(uint8_t* data) {
