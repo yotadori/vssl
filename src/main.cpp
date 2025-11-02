@@ -55,9 +55,15 @@ float cycle = 1;
 
 // 割り込み処理
 void timer1Task() {
+  udp_receiver.update();
   speaker.update();
   gyro.update();
-  robo.execute(cycle);
+  if (udp_receiver.updated_time() + 1000 < millis()) {
+    // 1秒以上データが来ていないときは停止
+    robo.stop();
+  } else {
+    robo.execute(cycle);
+  }
 }
 
 // 割り込み用タイマー
@@ -132,7 +138,6 @@ bool last_kick_flag = false;
 
 void loop() {
 
-  udp_receiver.update();
   robo.set_target_vel(udp_receiver.vel());
 
   if (udp_receiver.kick_flag() || is_switch_on) {
