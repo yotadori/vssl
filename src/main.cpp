@@ -95,6 +95,8 @@ void setup() {
   // 一度キック動作をはさんで、キッカーを引き戻す
   robo.kick();
 
+  robo.stop();
+
   udp_receiver.setup();
 }  
 
@@ -108,7 +110,8 @@ void loop() {
       robo.kick();
     }
   }
-  Serial1.printf("%c", '0' + udp_receiver.dribble_pow());
+
+  Serial1.write(udp_receiver.dribble_pow());
 
   Serial.printf("Ball: %d, Switch: %d\n", is_ball_on ? 1 : 0, is_switch_on ? 1 : 0);
 
