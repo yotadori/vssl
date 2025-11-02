@@ -55,6 +55,11 @@ class Speaker {
         void set_melody(tone_type melody[]);
 
         /**
+         * @brief メロディーを止める
+         */
+        void stop_melody();
+
+        /**
          * @return 再生中か
         */
         bool playing();

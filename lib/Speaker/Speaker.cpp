@@ -58,6 +58,11 @@ void Speaker::set_melody(tone_type melody[]) {
     beep(melody_[melody_step_].tone);
 }
 
+void Speaker::stop_melody() {
+    playing_ = false;
+    stop();
+}
+
 bool Speaker::playing() {
     return playing_;
 }
