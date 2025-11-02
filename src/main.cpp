@@ -95,24 +95,54 @@ void setup() {
   // 一度キック動作をはさんで、キッカーを引き戻す
   robo.kick();
 
+  // 接続待ち
   robo.stop();
+  Speaker::tone_type melody[] = {
+    {5, 100},
+    {0, 300},
+    {Speaker::REPEAT, 0}
+  };
+  speaker.set_melody(melody);
 
+  // 接続
   udp_receiver.setup();
+
+  // 接続完了したら音を止める
+  speaker.stop_melody();
 }  
+
+// 前回のキックフラグの状態
+bool last_kick_flag = false;
 
 void loop() {
 
   udp_receiver.update();
   robo.set_target_vel(udp_receiver.vel());
+
   if (udp_receiver.kick_flag() || is_switch_on) {
-    // キックフラグが立っていて、ボールセンサがオンのときキック
+    if (!last_kick_flag) {
+      // キックフラグが立ったときに音を鳴らす
+      Speaker::tone_type melody[] = {
+          {1, 50},
+          {2, 50},
+          {Speaker::REPEAT, 0}};
+      speaker.set_melody(melody);
+      last_kick_flag = true;
+    }
     if (is_ball_on) {
+      // キックフラグが立っていて、ボールセンサがオンのときキック
       robo.kick();
     }
+  } else if (last_kick_flag) {
+    // キックフラグが下がったときに音を止める
+    speaker.stop_melody();
+    last_kick_flag = false;
   }
 
+  // ドリブルパワーをそのまま送る
   Serial1.write(udp_receiver.dribble_pow());
 
+  // デバッグ用情報をシリアルモニタに表示
   Serial.printf("Ball: %d, Switch: %d\n", is_ball_on ? 1 : 0, is_switch_on ? 1 : 0);
 
   if (Serial.available() > 0) {
