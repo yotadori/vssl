@@ -50,6 +50,9 @@ bool is_ball_on = false;
 // PICスイッチ
 bool is_switch_on = false;
 
+// debug mode
+bool is_debug_mode = false;
+
 // 割り込みの周期
 float cycle = 1;
 
@@ -58,7 +61,7 @@ void timer1Task() {
   udp_receiver.update();
   speaker.update();
   gyro.update();
-  if (udp_receiver.updated_time() + 1000 < millis()) {
+  if (!is_debug_mode && udp_receiver.updated_time() + 1000 < millis()) {
     // 1秒以上データが来ていないときは停止
     robo.stop();
   } else {
@@ -137,6 +140,53 @@ void setup() {
 bool last_kick_flag = false;
 
 void loop() {
+  if (Serial.available() > 0) {
+    // シリアルモニタからのコマンドを読む
+    String input = Serial.readString();
+    // split with space
+    String command = input.substring(0, input.indexOf(' '));
+
+    if (command == "restart") {
+      // 再起動コマンド
+      ESP.restart();
+    } else if (command == "debug") {
+      // デバッグモード開始コマンド
+      Serial.println("debug mode start");
+      is_debug_mode = true;
+    } else if (command == "dribble") {
+      // ドリブルパワー設定コマンド
+      int power = input.substring(input.indexOf(' ') + 1).toInt();
+      Serial1.write(power);
+    } else if (command == "beep") {
+      // ビープ音コマンド
+      int tone = input.substring(input.indexOf(' ') + 1).toInt();
+      speaker.beep(tone);
+    } else if (command == "kick") {
+      robo.kick();
+    } else {
+      // 未知のコマンド
+      Serial.println("Unknown command");
+      // ヘルプ表示
+      Serial.println(" restart - restart the robot");
+      Serial.println(" debug - enter debug mode");
+      Serial.println("Available commands:");
+      Serial.println(" dribble <power> - set dribble power (0-12)");
+      Serial.println(" beep <tone> - play beep sound (0-9), 0 to stop");
+      Serial.println(" kick - perform kick action");
+    }
+  }
+
+  if (Serial1.available() > 0) {
+    // PICからのデータを読む
+    int data = Serial1.read();
+    is_ball_on = (data & 0x01) == 0;
+    is_switch_on = (data & 0x02) == 0;
+  }
+
+  if (udp_receiver.updated_time() + 1000 < millis()) {
+    // 1秒以上データが来ていないときは停止
+    return;
+  }
 
   robo.set_target_vel(udp_receiver.vel());
 
@@ -164,16 +214,6 @@ void loop() {
   Serial1.write(udp_receiver.dribble_pow());
 
   // デバッグ用情報をシリアルモニタに表示
-  Serial.printf("Ball: %d, Switch: %d\n", is_ball_on ? 1 : 0, is_switch_on ? 1 : 0);
-
-  if (Serial.available() > 0) {
-    String input = Serial.readString();
-    Serial1.printf("%s", input.c_str());
-  }
-  if (Serial1.available() > 0) {
-    // PICからのデータを読む
-    int data = Serial1.read();
-    is_ball_on = (data & 0x01) == 0;
-    is_switch_on = (data & 0x02) == 0;
-  }
+  // Serial.printf("Ball: %d, Switch: %d\n", is_ball_on ? 1 : 0, is_switch_on ? 1 : 0);
+  
 }
