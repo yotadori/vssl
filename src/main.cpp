@@ -61,11 +61,15 @@ void timer1Task() {
   udp_receiver.update();
   speaker.update();
   gyro.update();
-  if (!is_debug_mode && udp_receiver.updated_time() + 1000 < millis()) {
+  if (!is_switch_on && !is_debug_mode && udp_receiver.updated_time() + 1000 < millis()) {
     // 1秒以上データが来ていないときは停止
+    // スイッチがオンのとき、またはデバッグモードのときは停止しない
     robo.stop();
+    Serial1.write(0); // ドリブルパワー0を送る
   } else {
     robo.execute(cycle);
+    // ドリブルパワーをそのまま送る
+    Serial1.write(udp_receiver.dribble_pow());
   }
 }
 
@@ -183,11 +187,6 @@ void loop() {
     is_switch_on = (data & 0x02) == 0;
   }
 
-  if (udp_receiver.updated_time() + 1000 < millis()) {
-    // 1秒以上データが来ていないときは停止
-    return;
-  }
-
   robo.set_target_vel(udp_receiver.vel());
 
   if (udp_receiver.kick_flag() || is_switch_on) {
@@ -209,9 +208,6 @@ void loop() {
     speaker.stop_melody();
     last_kick_flag = false;
   }
-
-  // ドリブルパワーをそのまま送る
-  Serial1.write(udp_receiver.dribble_pow());
 
   // デバッグ用情報をシリアルモニタに表示
   // Serial.printf("Ball: %d, Switch: %d\n", is_ball_on ? 1 : 0, is_switch_on ? 1 : 0);
