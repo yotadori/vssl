@@ -27,7 +27,7 @@ constexpr int US_TRIG_PIN = D6;
 constexpr int US_ECHO_PIN = D7;
 
 // サーボモーター（キック用モーター）
-Servo servo0 = Servo(0, SERVO_PIN);
+Servo servo0 = Servo(0, SERVO_PIN, 10);
 // 連続回転サーボモーター（ホイールのモーター）
 Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
 Rot_Servo rot2 = Rot_Servo(2, ROT_PIN_2, 0);
