@@ -24,7 +24,7 @@ void Rot_Servo::set_speed(float speed) {
     // -1.0~1.0を6%~8.5%に変換
     constexpr float DUTY_MAX = 8.5;
     constexpr float DUTY_MIN = 6;
-    int duty = (speed * (DUTY_MAX - DUTY_MIN) / 2.0 + (DUTY_MAX + DUTY_MIN) / 2.0 + offset_) * 4095 / 100.0;
+    int duty = ((speed + offset_) * (DUTY_MAX - DUTY_MIN) / 2.0 + (DUTY_MAX + DUTY_MIN) / 2.0) * 4095 / 100.0;
     ledcWrite(channel_, duty);
 }
 

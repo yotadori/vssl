@@ -10,7 +10,7 @@ class Servo {
          * @param channel pwmのチャンネル
          * @param pin ピン
         */
-        Servo(int channel, int pin);
+        Servo(int channel, int pin, float offset);
 
         /**
          * @brief 角度をセット
@@ -26,6 +26,8 @@ class Servo {
     private:
         // pwmのチャンネル
         int channel_;
+        // オフセット
+        float offset_;
 
 };
 
