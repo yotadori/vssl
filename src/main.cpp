@@ -3,6 +3,7 @@
 #include "Servo.h"
 #include "Rot_Servo.h"
 #include "Robo.h"
+#include "Robo_Old.h"
 #include "Speaker.h"
 #include "Gyro.h"
 #include "UltrasonicSensor.h"
@@ -37,15 +38,17 @@ Rot_Servo rot3 = Rot_Servo(3, ROT_PIN_3, 0);
 Gyro gyro = Gyro();
 
 // ロボット
-Robo robo = Robo(rot1, rot2, rot3, servo0, gyro);
+Robo_Old robo = Robo_Old(rot1, rot2, rot3, servo0, gyro);
 
 // スピーカー
 Speaker speaker = Speaker(4, SPEAKER_PIN);
 
-Udp_Receiver udp_receiver = Udp_Receiver("yota-HP-OmniBook", "yotakunhappy");
+//Udp_Receiver udp_receiver = Udp_Receiver("yota-HP-OmniBook", "yotakunhappy");
+Udp_Receiver udp_receiver = Udp_Receiver("KIKS2f-g", "516a6a9041c41");
+
 
 // ボールセンサ
-bool is_ball_on = false;
+bool is_ball_on = true;
 
 // PICスイッチ
 bool is_switch_on = false;
@@ -171,9 +174,9 @@ void loop() {
       // 未知のコマンド
       Serial.println("Unknown command");
       // ヘルプ表示
+      Serial.println("Available commands:");
       Serial.println(" restart - restart the robot");
       Serial.println(" debug - enter debug mode");
-      Serial.println("Available commands:");
       Serial.println(" dribble <power> - set dribble power (0-12)");
       Serial.println(" beep <tone> - play beep sound (0-9), 0 to stop");
       Serial.println(" kick - perform kick action");
