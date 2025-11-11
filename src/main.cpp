@@ -56,6 +56,9 @@ bool is_switch_on = false;
 // debug mode
 bool is_debug_mode = false;
 
+// dribble power
+int dribble_pow = 0;
+
 // 割り込みの周期
 float cycle = 1;
 
@@ -72,7 +75,7 @@ void timer1Task() {
   } else {
     robo.execute(cycle);
     // ドリブルパワーをそのまま送る
-    Serial1.write(udp_receiver.dribble_pow());
+    Serial1.write(dribble_pow);
   }
 }
 
@@ -162,8 +165,7 @@ void loop() {
       is_debug_mode = true;
     } else if (command == "dribble") {
       // ドリブルパワー設定コマンド
-      int power = input.substring(input.indexOf(' ') + 1).toInt();
-      Serial1.write(power);
+      dribble_pow = input.substring(input.indexOf(' ') + 1).toInt();
     } else if (command == "beep") {
       // ビープ音コマンド
       int tone = input.substring(input.indexOf(' ') + 1).toInt();
@@ -190,7 +192,10 @@ void loop() {
     is_switch_on = (data & 0x02) == 0;
   }
 
-  robo.set_target_vel(udp_receiver.vel());
+  if (!is_debug_mode) {
+    robo.set_target_vel(udp_receiver.vel());
+    dribble_pow = udp_receiver.dribble_pow();
+  }
 
   if (udp_receiver.kick_flag() || is_switch_on) {
     if (!last_kick_flag) {
