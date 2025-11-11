@@ -20,15 +20,15 @@ constexpr int SPEAKER_PIN = D6;
 // AI module adapted circuit
 // ピン番号の設定
 constexpr int SERVO_PIN = D3;
-constexpr int ROT_PIN_1 = D2;
-constexpr int ROT_PIN_2 = D10;
-constexpr int ROT_PIN_3 = D1;
+constexpr int ROT_PIN_1 = D1;
+constexpr int ROT_PIN_2 = D2;
+constexpr int ROT_PIN_3 = D10;
 constexpr int SPEAKER_PIN = D0;
 constexpr int US_TRIG_PIN = D6;
 constexpr int US_ECHO_PIN = D7;
 
 // サーボモーター（キック用モーター）
-Servo servo0 = Servo(0, SERVO_PIN, 10);
+Servo servo0 = Servo(0, SERVO_PIN, 13);
 // 連続回転サーボモーター（ホイールのモーター）
 Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
 Rot_Servo rot2 = Rot_Servo(2, ROT_PIN_2, 0);
@@ -38,7 +38,7 @@ Rot_Servo rot3 = Rot_Servo(3, ROT_PIN_3, 0);
 Gyro gyro = Gyro();
 
 // ロボット
-Robo_Old robo = Robo_Old(rot1, rot2, rot3, servo0, gyro);
+Robo robo = Robo(rot1, rot2, rot3, servo0, gyro);
 
 // スピーカー
 Speaker speaker = Speaker(4, SPEAKER_PIN);
