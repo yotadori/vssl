@@ -28,7 +28,7 @@ constexpr int US_TRIG_PIN = D6;
 constexpr int US_ECHO_PIN = D7;
 
 // サーボモーター（キック用モーター）
-Servo servo0 = Servo(0, SERVO_PIN, 13);
+Servo servo0 = Servo(0, SERVO_PIN, -20);
 // 連続回転サーボモーター（ホイールのモーター）
 Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
 Rot_Servo rot2 = Rot_Servo(2, ROT_PIN_2, 0);
@@ -74,8 +74,13 @@ void timer1Task() {
     Serial1.write(0); // ドリブルパワー0を送る
   } else {
     robo.execute(cycle);
-    // ドリブルパワーをそのまま送る
-    Serial1.write(dribble_pow);
+    if (robo.kicking()) {
+      // dribbler off when kicking
+      Serial1.write(0);
+    } else {
+      // ドリブルパワーをそのまま送る
+      Serial1.write(dribble_pow);
+    }
   }
 }
 

@@ -96,6 +96,11 @@ class Robo {
          */
         void set_use_gyro(boolean flag);
 
+        /**
+         * @brief キック中か
+         */
+        bool kicking();
+
     private:
         xyz_t target_vel_; // 目標速度
         float last_omega_error_; // 角度の誤差

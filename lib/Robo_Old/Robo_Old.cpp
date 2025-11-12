@@ -148,3 +148,7 @@ void Robo_Old::set_default_omega(float omega) {
 void Robo_Old::set_use_gyro(boolean flag) {
   use_gyro_ = flag;
 }
+
+bool Robo_Old::kicking() {
+  return kicking_;
+}
