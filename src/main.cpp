@@ -7,7 +7,8 @@
 #include "Speaker.h"
 #include "Gyro.h"
 #include "UltrasonicSensor.h"
-#include "Udp_Receiver.h"
+
+#include "RemoteXY_Header.h"
 
 /*
 constexpr int SERVO_PIN = D7;
@@ -28,7 +29,7 @@ constexpr int US_TRIG_PIN = D6;
 constexpr int US_ECHO_PIN = D7;
 
 // サーボモーター（キック用モーター）
-Servo servo0 = Servo(0, SERVO_PIN, 13);
+Servo servo0 = Servo(0, SERVO_PIN, -40); // キックがうまくいくようにオフセット調整
 // 連続回転サーボモーター（ホイールのモーター）
 Rot_Servo rot1 = Rot_Servo(1, ROT_PIN_1, 0);
 Rot_Servo rot2 = Rot_Servo(2, ROT_PIN_2, 0);
@@ -42,10 +43,6 @@ Robo robo = Robo(rot1, rot2, rot3, servo0, gyro);
 
 // スピーカー
 Speaker speaker = Speaker(4, SPEAKER_PIN);
-
-//Udp_Receiver udp_receiver = Udp_Receiver("yota-HP-OmniBook", "yotakunhappy");
-Udp_Receiver udp_receiver = Udp_Receiver("KIKS2f-g", "516a6a9041c41");
-
 
 // ボールセンサ
 bool is_ball_on = true;
@@ -64,19 +61,11 @@ float cycle = 1;
 
 // 割り込み処理
 void timer1Task() {
-  udp_receiver.update();
   speaker.update();
   gyro.update();
-  if (!is_switch_on && !is_debug_mode && udp_receiver.updated_time() + 1000 < millis()) {
-    // 1秒以上データが来ていないときは停止
-    // スイッチがオンのとき、またはデバッグモードのときは停止しない
-    robo.stop();
-    Serial1.write(0); // ドリブルパワー0を送る
-  } else {
-    robo.execute(cycle);
-    // ドリブルパワーをそのまま送る
-    Serial1.write(dribble_pow);
-  }
+  robo.execute(cycle);
+  // ドリブルパワーをそのまま送る
+  Serial1.write(dribble_pow);
 }
 
 // 割り込み用タイマー
@@ -124,9 +113,9 @@ void setup() {
   speaker.set_melody(melody);
 
   // 接続
-  udp_receiver.setup();
+  RemoteXY_Init();
 
-  if (udp_receiver.isConnected()) {
+  if (RemoteXY.connect_flag) {
     // connection success
     Speaker::tone_type melody[] = {
         {5, 200},
@@ -192,12 +181,27 @@ void loop() {
     is_switch_on = (data & 0x02) == 0;
   }
 
-  if (!is_debug_mode) {
-    robo.set_target_vel(udp_receiver.vel());
-    dribble_pow = udp_receiver.dribble_pow();
+  RemoteXY_Handler(); // RemoteXYを更新
+ 
+  if (!is_debug_mode) { 
+
+    // ジョイスティックの値をもとに，ロボットの速度を設定
+    robo.set_target_vel({(float)(RemoteXY.joystick_01_y * 3.0),
+                         (float)(RemoteXY.joystick_01_x * -3.0),
+                         (float)(RemoteXY.joystick_02_x * -0.04)});
+
+    if (RemoteXY.button_02) {
+      dribble_pow ++;
+      RemoteXY_delay(200);
+    } else if (RemoteXY.button_03) {
+      dribble_pow --;
+      RemoteXY_delay(200);
+    }
+    if (dribble_pow < 0) dribble_pow = 0;
+    if (dribble_pow > 12) dribble_pow = 12;
   }
 
-  if (udp_receiver.kick_flag() || is_switch_on) {
+  if (RemoteXY.button_01 || is_switch_on) {
     if (!last_kick_flag) {
       // キックフラグが立ったときに音を鳴らす
       Speaker::tone_type melody[] = {
