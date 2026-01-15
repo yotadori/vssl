@@ -15,7 +15,9 @@ class Robo {
         // ロボットの半径（タイヤ部分）(mm)
         constexpr static float RADIUS = 30;
         // 最大速度(mm/s)
-        constexpr static float MAX_SPEED = 420;
+        constexpr static float MAX_SPEED = 260;
+        // 最大加速度(mm/s2)
+        constexpr static float MAX_ACC = 500;
         // 最大角速度(rad/s)
         constexpr static float MAX_OMEGA = 5;
 
@@ -103,6 +105,7 @@ class Robo {
 
     private:
         xyz_t target_vel_; // 目標速度
+        xyz_t last_vel_;
         float last_omega_error_; // 角度の誤差
         float omega_error_integral_; // 角度の誤差の積分
 

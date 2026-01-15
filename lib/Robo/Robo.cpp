@@ -3,6 +3,7 @@
 Robo::Robo(Rot_Servo& rot1, Rot_Servo& rot2, Rot_Servo& rot3, Servo& servo, Gyro& gyro)
    :
     target_vel_{0},
+    last_vel_{0},
     last_omega_error_(0),
     omega_error_integral_(0),
     vel_{0},
@@ -30,11 +31,11 @@ void Robo::setup() {
 
 void Robo::execute(float cycle) {
 
-  auto clamp = [](float a, float limit) {
-    if (a > limit) {
-      a = limit;
-    } else if (a < -limit) {
-      a = -limit;
+  auto clamp = [](float a, float min, float max) {
+    if (a > max) {
+      a = max;
+    } else if (a < min) {
+      a = min;
     }
     return a;
   };
@@ -56,8 +57,8 @@ void Robo::execute(float cycle) {
 
     // 角速度をフィードバック（PID）
     const float k_p = 0.1;
-    const float k_i = 0.02;
-    const float k_d = 0.01;
+    const float k_i = 20;
+    const float k_d = 0.0001;
     out_vel.z += k_p * omega_error + k_i * omega_error_integral_ + k_d * omega_error_diff;
 
     last_omega_error_ = omega_error;
@@ -65,11 +66,18 @@ void Robo::execute(float cycle) {
 
   // 速度調整用係数
   constexpr float c = 1.0;
+
+  // 加速度制限
+  const float d_speed = MAX_ACC * cycle;
+  out_vel.x = clamp(c * out_vel.x, last_vel_.x - d_speed, last_vel_.x + d_speed);
+  out_vel.y = clamp(c * out_vel.y, last_vel_.y - d_speed, last_vel_.y + d_speed);
  
   // 速度調整
-  out_vel.x = clamp(c * out_vel.x, Robo::MAX_SPEED);
-  out_vel.y = clamp(c * out_vel.y, Robo::MAX_SPEED);
-  out_vel.z = clamp(c * out_vel.z, Robo::MAX_OMEGA);
+  out_vel.x = clamp(c * out_vel.x, -Robo::MAX_SPEED, Robo::MAX_SPEED);
+  out_vel.y = clamp(c * out_vel.y, -Robo::MAX_SPEED, Robo::MAX_SPEED);
+  out_vel.z = clamp(c * out_vel.z, -Robo::MAX_OMEGA, Robo::MAX_SPEED);
+
+  last_vel_ = out_vel;
 
   // サーボへの出力に変換
   rot1_.set_speed((0.866 * out_vel.x + 0.500 * out_vel.y + Robo::RADIUS * out_vel.z) / Robo::MAX_SPEED);

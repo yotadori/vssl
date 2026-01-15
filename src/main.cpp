@@ -73,13 +73,13 @@ void timer1Task() {
     robo.stop();
     Serial1.write(0); // ドリブルパワー0を送る
   } else {
-    robo.execute(cycle);
+    robo.execute(cycle / 1000);
     if (robo.kicking()) {
       // dribbler off when kicking
       Serial1.write(0);
     } else {
-      // ドリブルパワーをそのまま送る
-      Serial1.write(dribble_pow);
+  // ドリブルパワーをそのまま送る
+  Serial1.write(dribble_pow);
     }
   }
 }
